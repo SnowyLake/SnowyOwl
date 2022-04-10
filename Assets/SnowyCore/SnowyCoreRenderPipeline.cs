@@ -10,6 +10,11 @@ public class SnowyCoreRenderPipeline : RenderPipeline
     RenderTexture[] m_GBuffers = new RenderTexture[4];                      //color attachment
     RenderTargetIdentifier[] m_GBufferID = new RenderTargetIdentifier[4];   //tex id
 
+    // IBL Map
+    public Cubemap DiffuseIBL { get; set; }
+    public Cubemap SpecularIBL { get; set; }
+    public Texture BRDFLut { get; set; }
+    
     public SnowyCoreRenderPipeline()
     {
         // create texture
@@ -30,19 +35,30 @@ public class SnowyCoreRenderPipeline : RenderPipeline
         var camera = cameras[0];
         context.SetupCameraProperties(camera);
         
-
+        // GBuffer
         Shader.SetGlobalTexture("_gdepth", m_GDepth);
         for(var i = 0; i < 4; i++)
         {
             Shader.SetGlobalTexture("_GT" + i, m_GBuffers[i]);
         }
 
-        // ------------------------ 管线各个 Pass ------------------------ //
+        // IBL贴图
+        Shader.SetGlobalTexture("_diffuseIBL", DiffuseIBL);
+        Shader.SetGlobalTexture("_specularIBL", SpecularIBL);
+        Shader.SetGlobalTexture("_brdfLut", BRDFLut);
+
+        // set matrix
+        Matrix4x4 viewMat = camera.worldToCameraMatrix;
+        Matrix4x4 projectionMat = GL.GetGPUProjectionMatrix(camera.projectionMatrix, false);
+        Matrix4x4 vpMat = viewMat * projectionMat;
+        Matrix4x4 vpMatInv = vpMat.inverse;
+        Shader.SetGlobalMatrix("_vpMat", vpMat);
+        Shader.SetGlobalMatrix("_vpMatInv", vpMatInv);
+
+        // ------------------------ Pass Start ------------------------ //
         GBufferPass(context, camera);
-
-        
-        // ------------------------ Pass End      ------------------------ //
-
+        LightPass(context, camera);
+        // ------------------------ Pass End   ------------------------ //
 
         // skybox and Gizmos
         context.DrawSkybox(camera);
@@ -51,8 +67,6 @@ public class SnowyCoreRenderPipeline : RenderPipeline
             context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
             context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
         }
-        LightPass(context, camera);
-
 
         context.Submit();
     }
@@ -74,7 +88,7 @@ public class SnowyCoreRenderPipeline : RenderPipeline
         var cullingResults = context.Cull(ref cullingParameters);
 
         // config setting
-        var shaderTagId = new ShaderTagId("gbuffer");   //使用 LightMode 为 GBuffer 的 Shader
+        var shaderTagId = new ShaderTagId("gbuffer");   //使用LightMode为gbuffer的Shader
         var sortingSettings = new SortingSettings(camera);
         var drawingSettings = new DrawingSettings(shaderTagId, sortingSettings);
         var filteringSettings = FilteringSettings.defaultValue;
