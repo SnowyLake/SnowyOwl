@@ -79,7 +79,7 @@ public class SnowyCoreRenderPipeline : RenderPipeline
 
         cmd.SetRenderTarget(m_GBufferID, m_GDepth);
         // clear
-        cmd.ClearRenderTarget(true, true, Color.grey);
+        cmd.ClearRenderTarget(true, true, Color.clear);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
 

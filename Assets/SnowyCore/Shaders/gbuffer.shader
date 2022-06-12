@@ -2,7 +2,7 @@ Shader "SnowyCore/gbuffer"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _MainTex ("Albedo Map", 2D) = "white" {}
         [Space(25)]
 
         _Metallic_global ("Metallic", Range(0, 1)) = 0.5

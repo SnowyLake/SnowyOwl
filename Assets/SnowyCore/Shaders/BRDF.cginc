@@ -29,8 +29,9 @@ float Trowbridge_Reitz_GGX(float NdotH, float a)
 float SchlickFresnel(float HdotV, float3 F0)
 {
     float m = clamp(1- HdotV, 0.0, 1.0);
-    float m5 = pow(m, 5);
-    return F0 + (1 - F0) * m5;
+    float m2 = m * m;
+    float m5 = m2 * m2 * m;
+    return F0 + (1.0 - F0) * m5;
 }
 
 // G: G(N, V, k), Geometry Function
@@ -48,7 +49,7 @@ float SchilckGGX(float NdotV, float k)
 }
 
 // Unity use this as IBL F
-float3 SchlickFresnelRoughness(float NdotV, float f0, float roughness)
+float3 SchlickFresnelRoughness(float NdotV, float3 f0, float roughness)
 {
     float r1 = 1.0f - roughness;
     return f0 + (max(float3(r1, r1, r1), f0) - f0) * pow(1 - NdotV, 5.0f);
@@ -63,7 +64,7 @@ float3 PBR(float3 N, float3 V, float3 L, float3 albedo, float3 radiance, float r
     float  NdotH = max(dot(N, H), 0);
     float  HdotV = max(dot(H, V), 0);
     float  alpha = roughness * roughness;
-    float  k     = (alpha + 1) * (alpha + 1) / 8;
+    float  k     = ((alpha + 1) * (alpha + 1)) / 8.0;
     float3 F0    = lerp(float3(0.04, 0.04, 0.04), albedo, metallic);
 
     float  D = Trowbridge_Reitz_GGX(NdotH, alpha);
@@ -91,7 +92,7 @@ float3 IBL(float3 N, float3 V, float3 albedo, float roughness, float metallic,
     float  HdotV = max(dot(H, V), 0);
     float3 R = normalize(reflect(-V, N));
 
-    float3 F0 = lerp(float(0.04), albedo, metallic);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic);
     float3 F  = SchlickFresnelRoughness(HdotV, F0, roughness);
     float3 ks = F;
     float3 kd = (1.0 - ks) * (1.0 - metallic);
