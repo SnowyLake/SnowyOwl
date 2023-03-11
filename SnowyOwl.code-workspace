@@ -7,10 +7,6 @@
 		{
 			"name": "DevPackages",
 			"path": "DevPackages"
-		},
-		{
-			"name": "FernNPRCore",
-			"path": "../FernNPR/Assets/FernNPRCore"
 		}
 	],
 	"settings": {
