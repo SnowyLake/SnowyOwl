@@ -1,10 +1,19 @@
 {
 	"folders": [
 		{
-			"path": "com.unity.render-pipelines.core@12.1.7"
+			"name": "Package",
+			"path": "OwlProject/Assets/Package"
 		},
 		{
-			"path": "com.unity.render-pipelines.universal@12.1.7"
+			"name": "DevPackages",
+			"path": "DevPackages"
+		},
+		{
+			"name": "FernNPRCore",
+			"path": "../FernNPR/Assets/FernNPRCore"
 		}
-	]
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
 }
