@@ -2,46 +2,59 @@ Shader "SnowyOwl/ToonLit"
 {
     Properties
     {
-        [Main(Group_ColorMaps, _, off, off)] _Group_ColorMaps ("Color Maps", float) = 0
-            [Sub(Group_ColorMaps)] [MainTexture] _BaseMap ("Albedo", 2D) = "white" { }
-            [Sub(Group_ColorMaps)] [MainColor] _BaseColor ("Color", Color) = (1, 1, 1, 1)
+        [Main(Group_ToonSurface, _, off, off)] _Group_ToonShading ("Toon Surface Setting", float) = 0
+            [Tex(Group_ToonSurface, _BaseColor)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
+            [HideInInspector][HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
+            [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
+            [Channel(Group_ToonSurface)] _SmoothnessChannel ("【Smoothness】Channel", Vector) = (1, 0, 0, 0)
+            [Sub(Group_ToonSurface)] _SmoothnessScale ("【Smoothness】Scale", Range(0.0, 2.0)) = 1.0
+            [Channel(Group_ToonSurface)] _SpacularScaleChannel ("【SpacularScale】Channel", Vector) = (0, 1, 0, 0)
+            [Sub(Group_ToonSurface)] _SpacularScaleScale ("【SpacularScale】Scale", Range(0.0, 2.0)) = 1.0
+            [Channel(Group_ToonSurface)] _ShadowThresholdChannel ("【ShadowThreshold】Channel", Vector) = (0, 0, 1, 0)
+            [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 2.0)) = 1.0
+            [Channel(Group_ToonSurface)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
+            [Sub(Group_ToonSurface)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 2.0)) = 1.0
 
-        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+            [SubToggle(Group_ToonSurface, _NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
+                [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _NormalMap ("Normal Map", 2D) = "bump" { }
+                [HideInInspector] _NormalScale ("Normal Scale", Float) = 1.0
 
-        _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
-        _SmoothnessTextureChannel("Smoothness texture channel", Float) = 0
+        [Main(Group_Mask)] _Mask ("Mask Setting", float) = 0
+            [Tex(Group_Mask)] _MaskMap ("Mask Map", 2D) = "white" { }
+            [Title(Group_Mask, Mask Channel)]
+            [Channel(Group_Mask)] _BRDFMaskChannel ("【BRDF Mask】Channel", Vector) = (1, 0, 0, 0)
+            [Channel(Group_Mask)] _RimMaskChannel ("【Rim Mask】Channel", Vector) = (0, 1, 0, 0)
+            [Channel(Group_Mask)] _MatcapMaskChannel ("【Matcap Mask】Channel", Vector) = (0, 0, 1, 0)
+            [Channel(Group_Mask)] _UnusedMaskChannel ("【Unused Mask】Channel", Vector) = (0, 0, 0, 1)
 
-        _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
-        _MetallicGlossMap("Metallic", 2D) = "white" {}
+        [Main(Group_BRDF)] _BRDF ("BRDF Setting", float) = 0
+            [Tex(Group_BRDF)] _BRDFMap ("BRDF Map", 2D) = "white" { }
+            [Channel(Group_BRDF)] _BRDFMetallicChannel ("【BRDF Metallic】Channel", Vector) = (1, 0, 0, 0)
+            [Sub(Group_BRDF)] _BRDFMetallicScale ("【BRDF Metallic】Scale", Range(0.0, 1.0)) = 0.0
+            [Channel(Group_BRDF)] _BRDFSmoothnessChannel ("【BRDF Smoothness】Channel", Vector) = (0, 1, 0, 0)
+            [Sub(Group_BRDF)] _BRDFSmoothnessScale ("【BRDF Smoothness】Scale", Range(0.0, 1.0)) = 0.5
+            
+            [Sub(Group_BRDF)] _SpecularColor ("Specular Color", Color) = (0.2, 0.2, 0.2)
 
-        _SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
-        _SpecGlossMap("Specular", 2D) = "white" {}
+            [SubToggle(Group_BRDF, _SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights ("Disable Specular Highlights", Float) = 0.0
 
-        [ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
-        [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
+        [Main(Group_Shadow)] _Shadow ("Shadow Setting", float) = 0
+            [Sub(Group_Shadow)] _OcclusionStrength ("Strength", Range(0.0, 1.0)) = 1.0
+            [Tex(Group_Shadow)]_OcclusionMap ("Occlusion", 2D) = "white" { }
 
-        _BumpScale("Scale", Float) = 1.0
-        _BumpMap("Normal Map", 2D) = "bump" {}
-
-        _Parallax("Scale", Range(0.005, 0.08)) = 0.005
-        _ParallaxMap("Height Map", 2D) = "black" {}
-
-        _OcclusionStrength("Strength", Range(0.0, 1.0)) = 1.0
-        _OcclusionMap("Occlusion", 2D) = "white" {}
-
-        [HDR] _EmissionColor("Color", Color) = (0,0,0)
-        _EmissionMap("Emission", 2D) = "white" {}
-
-        _DetailMask("Detail Mask", 2D) = "white" {}
-        _DetailAlbedoMapScale("Scale", Range(0.0, 2.0)) = 1.0
-        _DetailAlbedoMap("Detail Albedo x2", 2D) = "linearGrey" {}
-        _DetailNormalMapScale("Scale", Range(0.0, 2.0)) = 1.0
-        [Normal] _DetailNormalMap("Normal Map", 2D) = "bump" {}
+        [Main(Group_Rim)] _Rim ("Rim Setting", float) = 0
+            [Sub(Group_Emission)] [HDR] _RimColor ("Color", Color) = (0, 0, 0)
+        
+        [Main(Group_Outline)] _Outline ("Outline Setting", float) = 0
+            [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (1, 1, 1, 1)
+            [Sub(Group_Outline)] _OutlineWidth ("Outline Width", range(0.0, 1.0)) = 0.04
 
         // SRP batching compatibility for Clear Coat (Not used in Lit)
         [HideInInspector] _ClearCoatMask("_ClearCoatMask", Float) = 0.0
         [HideInInspector] _ClearCoatSmoothness("_ClearCoatSmoothness", Float) = 0.0
 
+        [Main(Group_General, _, off, off)] _Group_General ("General Setting", float) = 0
+            [Sub(Group_General)] _Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         // Blending state
         _Surface("__surface", Float) = 0.0
         _Blend("__blend", Float) = 0.0
@@ -61,13 +74,6 @@ Shader "SnowyOwl/ToonLit"
         [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
         [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
         [HideInInspector] _GlossyReflections("EnvironmentReflections", Float) = 0.0
-
-        // Specular vs Metallic workflow
-        // [HideInInspector] _WorkflowMode ("WorkflowMode", Float) = 1.
-
-        // [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
-        // [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
-        // [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
     }
 
     SubShader
@@ -75,7 +81,7 @@ Shader "SnowyOwl/ToonLit"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "Lit" "IgnoreProjector" = "True" "ShaderModel"="4.5"}
+        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit" "IgnoreProjector" = "True"}
         LOD 300
 
         // ------------------------------------------------------------------
@@ -96,21 +102,23 @@ Shader "SnowyOwl/ToonLit"
             #pragma target 4.5
 
             // -------------------------------------
+            // Toon Material Keywords
+            #pragma shader_feature_local _MASK_ON
+            #pragma shader_feature_local _BRDF_ON
+            #pragma shader_feature_local _SHADOW_ON
+            #pragma shader_feature_local _RIM_ON
+            #pragma shader_feature_local _OUTLINE_ON
+
+            // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
-            #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
             #pragma shader_feature_local_fragment _EMISSION
-            #pragma shader_feature_local_fragment _METALLICSPECGLOSSMAP
-            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
             #pragma shader_feature_local_fragment _OCCLUSIONMAP
             #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
-            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
-            #pragma shader_feature_local_fragment _SPECULAR_SETUP
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -121,18 +129,13 @@ Shader "SnowyOwl/ToonLit"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            //#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
             // Unity defined keywords
-            // #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
-            // #pragma multi_compile _ SHADOWS_SHADOWMASK
-            // #pragma multi_compile _ DIRLIGHTMAP_COMBINED
-            // #pragma multi_compile _ LIGHTMAP_ON
-            // #pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
@@ -143,10 +146,21 @@ Shader "SnowyOwl/ToonLit"
             // #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #pragma vertex LitPassVertex
-            #pragma fragment LitPassFragment
+            //#pragma fragment LitPassFragment
+            #pragma fragment Frag
+            
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+
+            half4 Frag(Varyings input) : SV_Target
+            {
+            #if defined(_SPECULARHIGHLIGHTS_OFF)
+                return half4(1,0,0,1);
+            #else
+                return half4(0,1,0,1);
+            #endif
+            }
             ENDHLSL
         }
 
