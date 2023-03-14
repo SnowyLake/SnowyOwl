@@ -2,7 +2,7 @@ Shader "SnowyOwl/ToonLit"
 {
     Properties
     {
-        [Main(Group_ToonSurface, _, off, off)] _Group_ToonShading ("Toon Surface Setting", float) = 0
+        [Main(Group_ToonSurface, _, off, off)] _Group_ToonSurface ("Toon Surface Setting", float) = 0
             [Tex(Group_ToonSurface, _BaseColor)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
             [HideInInspector][HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
             [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
@@ -19,7 +19,17 @@ Shader "SnowyOwl/ToonLit"
                 [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _NormalMap ("Normal Map", 2D) = "bump" { }
                 [HideInInspector] _NormalScale ("Normal Scale", Float) = 1.0
 
-        [Main(Group_Mask)] _Mask ("Mask Setting", float) = 0
+        [Main(Group_Shadow, _, off, off)] _Group_Shadow ("Shadow Setting", float) = 0
+            [Title(Group_Shadow, Shadow Color)]
+            [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowColorType("ShadowColor Type", Float) = 0.0
+            [Tex(Group_Shadow_SSSMAP, _ShadowColor)] _SSSMap ("SSS Map", 2D) = "white" { }
+            [Tex(Group_Shadow_RAMPMAP, _ShadowColor)] _RampMap ("Ramp Map", 2D) = "white" { }
+            //[SubToggle(Group_Shadow_SSSMAP, _RECEIVE_SHADOWS_OFF)]
+            [HideInInspector][HDR] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
+            [Title(Group_Shadow, Shadow Option)]
+            [SubToggle(Group_Shadow, _RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
+
+        [Main(Group_Mask, _MASKMAP)] _Group_Mask ("Mask Setting", float) = 0
             [Tex(Group_Mask)] _MaskMap ("Mask Map", 2D) = "white" { }
             [Title(Group_Mask, Mask Channel)]
             [Channel(Group_Mask)] _BRDFMaskChannel ("【BRDF Mask】Channel", Vector) = (1, 0, 0, 0)
@@ -27,26 +37,25 @@ Shader "SnowyOwl/ToonLit"
             [Channel(Group_Mask)] _MatcapMaskChannel ("【Matcap Mask】Channel", Vector) = (0, 0, 1, 0)
             [Channel(Group_Mask)] _UnusedMaskChannel ("【Unused Mask】Channel", Vector) = (0, 0, 0, 1)
 
-        [Main(Group_BRDF)] _BRDF ("BRDF Setting", float) = 0
+        [Main(Group_BRDF, _BRDFMAP)] _Group_BRDF ("BRDF Setting", float) = 0
             [Tex(Group_BRDF)] _BRDFMap ("BRDF Map", 2D) = "white" { }
             [Channel(Group_BRDF)] _BRDFMetallicChannel ("【BRDF Metallic】Channel", Vector) = (1, 0, 0, 0)
             [Sub(Group_BRDF)] _BRDFMetallicScale ("【BRDF Metallic】Scale", Range(0.0, 1.0)) = 0.0
             [Channel(Group_BRDF)] _BRDFSmoothnessChannel ("【BRDF Smoothness】Channel", Vector) = (0, 1, 0, 0)
             [Sub(Group_BRDF)] _BRDFSmoothnessScale ("【BRDF Smoothness】Scale", Range(0.0, 1.0)) = 0.5
+            [Channel(Group_BRDF)] _BRDFOcclusionChannel ("【BRDF Occlusion】Channel", Vector) = (0, 0, 1, 0)
+            [Sub(Group_BRDF)] _BRDFOcclusionScale ("【BRDF Occlusion】Scale", Range(0.0, 1.0)) = 1.0
+            [Channel(Group_BRDF)] _BRDFEmissiveChannel ("【BRDF Emissive】Channel", Vector) = (0, 0, 0, 1)
+            [Sub(Group_BRDF)] _BRDFEmissiveScale ("【BRDF Emissive】Scale", Range(0.0, 1.0)) = 1.0
             
             [Sub(Group_BRDF)] _SpecularColor ("Specular Color", Color) = (0.2, 0.2, 0.2)
-
             [SubToggle(Group_BRDF, _SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights ("Disable Specular Highlights", Float) = 0.0
 
-        [Main(Group_Shadow)] _Shadow ("Shadow Setting", float) = 0
-            [Sub(Group_Shadow)] _OcclusionStrength ("Strength", Range(0.0, 1.0)) = 1.0
-            [Tex(Group_Shadow)]_OcclusionMap ("Occlusion", 2D) = "white" { }
-
-        [Main(Group_Rim)] _Rim ("Rim Setting", float) = 0
+        [Main(Group_Rim, _RIM_ON)] _RimLight ("RimLight Setting", float) = 0
             [Sub(Group_Emission)] [HDR] _RimColor ("Color", Color) = (0, 0, 0)
         
-        [Main(Group_Outline)] _Outline ("Outline Setting", float) = 0
-            [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (1, 1, 1, 1)
+        [Main(Group_Outline, _OUTLINE_ON)] _Outline ("Outline Setting", float) = 0
+            [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
             [Sub(Group_Outline)] _OutlineWidth ("Outline Width", range(0.0, 1.0)) = 0.04
 
         // SRP batching compatibility for Clear Coat (Not used in Lit)
@@ -63,8 +72,6 @@ Shader "SnowyOwl/ToonLit"
         [HideInInspector] _SrcBlend("__src", Float) = 1.0
         [HideInInspector] _DstBlend("__dst", Float) = 0.0
         [HideInInspector] _ZWrite("__zw", Float) = 1.0
-
-        [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -103,15 +110,16 @@ Shader "SnowyOwl/ToonLit"
 
             // -------------------------------------
             // Toon Material Keywords
-            #pragma shader_feature_local _MASK_ON
-            #pragma shader_feature_local _BRDF_ON
-            #pragma shader_feature_local _SHADOW_ON
+            #pragma shader_feature_local _MASKMAP
+            #pragma shader_feature_local _BRDFMAP
+            #pragma shader_feature_local _SSSMAP _RAMPMAP
             #pragma shader_feature_local _RIM_ON
             #pragma shader_feature_local _OUTLINE_ON
 
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
+
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local_fragment _ALPHATEST_ON
@@ -155,7 +163,7 @@ Shader "SnowyOwl/ToonLit"
 
             half4 Frag(Varyings input) : SV_Target
             {
-            #if defined(_SPECULARHIGHLIGHTS_OFF)
+            #if defined(_SHADOWCOLOR_RAMP)
                 return half4(1,0,0,1);
             #else
                 return half4(0,1,0,1);
