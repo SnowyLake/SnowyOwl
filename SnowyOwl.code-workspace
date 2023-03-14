@@ -1,8 +1,8 @@
 {
 	"folders": [
 		{
-			"name": "Package",
-			"path": "Assets/Package"
+			"name": "OwlPackage",
+			"path": "Assets/OwlPackage"
 		},
 		{
 			"name": "Packages",
