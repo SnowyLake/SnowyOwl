@@ -2,11 +2,11 @@
 	"folders": [
 		{
 			"name": "Package",
-			"path": "OwlProject/Assets/Package"
+			"path": "Assets/Package"
 		},
 		{
-			"name": "DevPackages",
-			"path": "DevPackages"
+			"name": "Packages",
+			"path": "Packages"
 		}
 	],
 	"settings": {
