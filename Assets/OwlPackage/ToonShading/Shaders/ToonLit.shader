@@ -1,9 +1,9 @@
-Shader "SnowyOwl/ToonLit"
+Shader "Snowy/Owl/ToonLit"
 {
     Properties
     {
         [Main(Group_ToonSurface, _, off, off)] _Group_ToonSurface ("Toon Surface Setting", float) = 0
-            [Tex(Group_ToonSurface, _BaseColor)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
+            [Tex(Group_ToonSurface, _BaseColor)] [HDR] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
             [HideInInspector][HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
             [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
             [Channel(Group_ToonSurface)] _SmoothnessChannel ("【Smoothness】Channel", Vector) = (1, 0, 0, 0)
@@ -88,7 +88,7 @@ Shader "SnowyOwl/ToonLit"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit" "IgnoreProjector" = "True"}
+        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit"}
         LOD 300
 
         // ------------------------------------------------------------------
