@@ -3,7 +3,6 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-
 #if defined(_NORMALMAP)
 #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 #endif
@@ -15,8 +14,6 @@ struct Attributes
     float3 normalOS     : NORMAL;
     float4 tangentOS    : TANGENT;
     float2 texcoord     : TEXCOORD0;
-    //float2 staticLightmapUV   : TEXCOORD1;
-    //float2 dynamicLightmapUV  : TEXCOORD2;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -30,7 +27,7 @@ struct Varyings
 
     float3 normalWS                 : TEXCOORD2;
 #if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
-    half4 tangentWS                : TEXCOORD3;    // xyz: tangent, w: sign
+    half4 tangentWS                 : TEXCOORD3;    // xyz: tangent, w: sign
 #endif
     float3 viewDirWS                : TEXCOORD4;
 
@@ -43,11 +40,7 @@ struct Varyings
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     float4 shadowCoord              : TEXCOORD6;
 #endif
-
-    DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
-// #ifdef DYNAMICLIGHTMAP_ON
-//     float2  dynamicLightmapUV : TEXCOORD9; // Dynamic lightmap UVs
-// #endif
+    half3 vertexSH                  : TEXCOORD7;
 
     float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -92,12 +85,7 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.fogCoord = InitializeInputDataFog(float4(input.positionWS, 1.0), input.fogFactor);
 #endif
 
-#if defined(DYNAMICLIGHTMAP_ON)
-    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, inputData.normalWS);
-#else
-    inputData.bakedGI = SAMPLE_GI(input.staticLightmapUV, input.vertexSH, inputData.normalWS);
-#endif
-
+    inputData.bakedGI = SampleSHPixel(input.vertexSH, inputData.normalWS);
     inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
     inputData.shadowMask = SAMPLE_SHADOWMASK(input.staticLightmapUV);
 
@@ -143,7 +131,7 @@ Varyings ToonLitPassVertex(Attributes input)
 
     // already normalized from normal transform to WS.
     output.normalWS = normalInput.normalWS;
-#if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR) || defined(REQUIRES_TANGENT_SPACE_VIEW_DIR_INTERPOLATOR)
+#if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
     real sign = input.tangentOS.w * GetOddNegativeScale();
     half4 tangentWS = half4(normalInput.tangentWS.xyz, sign);
 #endif
@@ -151,11 +139,7 @@ Varyings ToonLitPassVertex(Attributes input)
     output.tangentWS = tangentWS;
 #endif
 
-    OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
-#ifdef DYNAMICLIGHTMAP_ON
-    output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
-#endif
-    OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
+    output.vertexSH = SampleSHVertex(output.normalWS.xyz);
 #ifdef _ADDITIONAL_LIGHTS_VERTEX
     output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 #else
@@ -181,7 +165,7 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
     UNITY_SETUP_INSTANCE_ID(input);
 
     SurfaceData surfaceData;
-    InitializeStandardLitSurfaceData(input.uv, surfaceData);
+    InitializeStandardLitSurfaceData(input.uv.xy, surfaceData);
 
     InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);
