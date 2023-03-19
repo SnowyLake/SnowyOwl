@@ -119,13 +119,13 @@ Shader "Snowy/Owl/ToonLit"
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
-
             #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
+            #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma shader_feature_local_fragment _ALPHAPREMULTIPLY_ON
             #pragma shader_feature_local_fragment _EMISSION
-            #pragma shader_feature_local_fragment _OCCLUSIONMAP
             #pragma shader_feature_local_fragment _SPECULARHIGHLIGHTS_OFF
+            #pragma shader_feature_local_fragment _ENVIRONMENTREFLECTIONS_OFF
 
             // -------------------------------------
             // Universal Pipeline keywords
@@ -148,19 +148,18 @@ Shader "Snowy/Owl/ToonLit"
 
             //--------------------------------------
             // GPU Instancing
-            // #pragma multi_compile_instancing
-            // #pragma instancing_options renderinglayer
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             // #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #pragma vertex ToonLitPassVertex
-            //#pragma fragment LitPassFragment
             #pragma fragment ToonLitPassFragment
-            
+            //#pragma fragment DebugFragment
 
             #include "ToonLitInput.hlsl"
             #include "ToonLitForwardPass.hlsl"
 
-            half4 Frag(Varyings input) : SV_Target
+            half4 DebugFragment(Varyings input) : SV_Target
             {
             #if defined(_RAMPMAP)
                 return half4(1,0,0,1);
