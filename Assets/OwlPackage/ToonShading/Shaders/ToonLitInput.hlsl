@@ -1,5 +1,5 @@
-#ifndef SNOWYOWL_TOON_LIT_INPUT_INCLUDED
-#define SNOWYOWL_TOON_LIT_INPUT_INCLUDED
+#ifndef SNOWYOWL_TOONLIT_INPUT_INCLUDED
+#define SNOWYOWL_TOONLIT_INPUT_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
@@ -242,4 +242,4 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfa
     #endif
 }
 
-#endif // SNOWYOWL_TOON_LIT_INPUT_INCLUDE
+#endif // SNOWYOWL_TOONLIT_INPUT_INCLUDE

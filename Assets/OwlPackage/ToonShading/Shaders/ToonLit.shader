@@ -158,12 +158,12 @@ Shader "Snowy/Owl/ToonLit"
             #pragma fragment Frag
             
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+            #include "ToonLitInput.hlsl"
+            #include "ToonLitForwardPass.hlsl"
 
             half4 Frag(Varyings input) : SV_Target
             {
-            #if defined(_SHADOWCOLOR_RAMP)
+            #if defined(_RAMPMAP)
                 return half4(1,0,0,1);
             #else
                 return half4(0,1,0,1);

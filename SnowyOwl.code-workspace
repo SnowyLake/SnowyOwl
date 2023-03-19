@@ -10,6 +10,7 @@
 		}
 	],
 	"settings": {
-		"git.ignoreLimitWarning": true
+		"git.ignoreLimitWarning": true,
+		"workbench.editor.wrapTabs": true
 	}
 }
