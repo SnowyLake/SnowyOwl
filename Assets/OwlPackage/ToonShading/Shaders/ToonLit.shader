@@ -21,11 +21,12 @@ Shader "Snowy/Owl/ToonLit"
 
         [Main(Group_Shadow, _, off, off)] _Group_Shadow ("Shadow Setting", float) = 0
             [Title(Group_Shadow, Shadow Color)]
-            [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowColorType("ShadowColor Type", Float) = 0.0
+            [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowColorMapType("ShadowColorMap Type", Float) = 0.0
             [Tex(Group_Shadow_SSSMAP, _ShadowColor)] _SSSMap ("SSS Map", 2D) = "white" { }
             [Tex(Group_Shadow_RAMPMAP, _ShadowColor)] _RampMap ("Ramp Map", 2D) = "white" { }
-            //[SubToggle(Group_Shadow_SSSMAP, _RECEIVE_SHADOWS_OFF)]
             [HideInInspector][HDR] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
+            [SubToggle(Group_Shadow_SSSMAP, _SHADOW_TRANSITION_RAMPMAP)] _UseShadowTransitionRampMap("Use Shadow Transition Ramp Map", Float) = 0.0
+            [Tex(Group_Shadow_SHADOW_TRANSITION_RAMPMAP)] _ShadowTransitionRampMap ("Shadow Transition Ramp Map", 2D) = "white" { }
             [Title(Group_Shadow, Shadow Option)]
             [SubToggle(Group_Shadow, _RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
 
@@ -113,6 +114,7 @@ Shader "Snowy/Owl/ToonLit"
             #pragma shader_feature_local _MASKMAP
             #pragma shader_feature_local _BRDFMAP
             #pragma shader_feature_local _SSSMAP _RAMPMAP
+            #pragma shader_feature_local _SHADOW_TRANSITION_RAMPMAP
             #pragma shader_feature_local _RIM_ON
             #pragma shader_feature_local _OUTLINE_ON
 
@@ -136,7 +138,6 @@ Shader "Snowy/Owl/ToonLit"
             // #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-            //#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             // #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _CLUSTERED_RENDERING
@@ -153,15 +154,15 @@ Shader "Snowy/Owl/ToonLit"
             // #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #pragma vertex ToonLitPassVertex
-            #pragma fragment ToonLitPassFragment
-            //#pragma fragment DebugFragment
+            //#pragma fragment ToonLitPassFragment
+            #pragma fragment DebugFragment
 
             #include "ToonLitInput.hlsl"
             #include "ToonLitForwardPass.hlsl"
 
             half4 DebugFragment(Varyings input) : SV_Target
             {
-            #if defined(_RAMPMAP)
+            #if defined(_SHADOW_TRANSITION_RAMPMAP)
                 return half4(1,0,0,1);
             #else
                 return half4(0,1,0,1);
