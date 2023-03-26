@@ -14,25 +14,22 @@ Shader "Snowy/Owl/ToonLit"
             [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 2.0)) = 1.0
             [Channel(Group_ToonSurface)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
             [Sub(Group_ToonSurface)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 2.0)) = 1.0
-
             [SubToggle(Group_ToonSurface, _NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
                 [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _NormalMap ("Normal Map", 2D) = "bump" { }
                 [HideInInspector] _NormalScale ("Normal Scale", Float) = 1.0
 
         [Main(Group_Shadow, _, off, off)] _Group_Shadow ("Shadow Setting", float) = 0
-            [Title(Group_Shadow, Shadow Color)]
-            [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowColorMapType("ShadowColorMap Type", Float) = 0.0
-            [Tex(Group_Shadow_SSSMAP, _ShadowColor)] _SSSMap ("SSS Map", 2D) = "white" { }
-            [Tex(Group_Shadow_RAMPMAP, _ShadowColor)] _RampMap ("Ramp Map", 2D) = "white" { }
-            [HideInInspector][HDR] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
-            [SubToggle(Group_Shadow_SSSMAP, _SHADOW_TRANSITION_RAMPMAP)] _UseShadowTransitionRampMap("Use Shadow Transition Ramp Map", Float) = 0.0
-            [Tex(Group_Shadow_SHADOW_TRANSITION_RAMPMAP)] _ShadowTransitionRampMap ("Shadow Transition Ramp Map", 2D) = "white" { }
+            [KWEnum(Group_Shadow, None, _NONEMAP, SSS, _SSSMAP, Ramp, _RAMPMAP, SSS with Ramp, _SSSMAP_WITHRAMP)] _ShadowMapType("ShadowMap Type", Float) = 1.0
+            [Color(Group_Shadow, _)] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
+            [Tex(Group_Shadow_SSSMAP)] _SSSMap ("SSS Map", 2D) = "white" { }
+            [Tex(Group_Shadow_RAMPMAP)] _RampMap ("Ramp Map", 2D) = "white" { }
+            [Tex(Group_Shadow_SSSMAP_WITHRAMP)] _BaseSSSMap ("Base SSS Map", 2D) = "white" { }
+            [Ramp(Group_Shadow_SSSMAP_WITHRAMP, SSSRampMap)] _AdditionalRampMap ("Additional Ramp Map", 2D) = "white" { }
             [Title(Group_Shadow, Shadow Option)]
             [SubToggle(Group_Shadow, _RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
 
         [Main(Group_Mask, _MASKMAP)] _Group_Mask ("Mask Setting", float) = 0
             [Tex(Group_Mask)] _MaskMap ("Mask Map", 2D) = "white" { }
-            [Title(Group_Mask, Mask Channel)]
             [Channel(Group_Mask)] _BRDFMaskChannel ("【BRDF Mask】Channel", Vector) = (1, 0, 0, 0)
             [Channel(Group_Mask)] _RimMaskChannel ("【Rim Mask】Channel", Vector) = (0, 1, 0, 0)
             [Channel(Group_Mask)] _MatcapMaskChannel ("【Matcap Mask】Channel", Vector) = (0, 0, 1, 0)
@@ -53,7 +50,8 @@ Shader "Snowy/Owl/ToonLit"
             [SubToggle(Group_BRDF, _SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights ("Disable Specular Highlights", Float) = 0.0
 
         [Main(Group_Rim, _RIM_ON)] _RimLight ("RimLight Setting", float) = 0
-            [Sub(Group_Emission)] [HDR] _RimColor ("Color", Color) = (0, 0, 0)
+            [KWEnum(Group_Rim, Fresnel, _RIM_FRESNEL, Depth Offset, _RIM_DEPTHOFFSET)] _RimLightType("RimLight Type", Float) = 0.0
+            [Sub(Group_Rim)] _RimColor ("Rim Color", Color) = (1, 1, 1, 1)
         
         [Main(Group_Outline, _OUTLINE_ON)] _Outline ("Outline Setting", float) = 0
             [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
@@ -62,19 +60,20 @@ Shader "Snowy/Owl/ToonLit"
         // SRP batching compatibility for Clear Coat (Not used in Lit)
         [HideInInspector] _ClearCoatMask("_ClearCoatMask", Float) = 0.0
         [HideInInspector] _ClearCoatSmoothness("_ClearCoatSmoothness", Float) = 0.0
+        
+        [Main(Group_General, _, off, off)] _General ("General Setting", float) = 0
+            [SubToggle(Group_General, _ALPHATEST_ON)] _AlphaClip("Alpha Clip", Float) = 0.0
+            [Sub(Group_General_ALPHATEST_ON)] _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+            [Preset(Group_General, Owl_SurfaceTypePreset)] _Surface("Surface Type", Float) = 0.0
+            [HideInInspector] [SubToggle(Group_General, _SURFACE_TYPE_TRANSPARENT)] _IsTransparent("Is Transparent", Float) = 0.0 // Preset control
 
-        [Main(Group_General, _, off, off)] _Group_General ("General Setting", float) = 0
-            [Sub(Group_General)] _Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-        // Blending state
-        _Surface("__surface", Float) = 0.0
-        _Blend("__blend", Float) = 0.0
-        _Cull("__cull", Float) = 2.0
-        [ToggleUI] _AlphaClip("__clip", Float) = 0.0
-        [HideInInspector] _SrcBlend("__src", Float) = 1.0
-        [HideInInspector] _DstBlend("__dst", Float) = 0.0
-        [HideInInspector] _ZWrite("__zw", Float) = 1.0
-        // Editmode props
-        _QueueOffset("Queue offset", Float) = 0.0
+        [Title(Material Config)]
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("SrcBlend", Float) = 1.0
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("DstBlend", Float) = 0.0
+        [Toggle(_)] _ZWrite("ZWrite", Float) = 1.0
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2.0
+        [Enum(RGBA, 15, RGB, 14)]_ColorMask("ColorMask", Float) = 15 // 15 is RGBA (binary 1111)
+        _QueueOffset("Queue Offset", Float) = 0.0 // Editmode props
 
         // ObsoleteProperties
         [HideInInspector] _MainTex("BaseMap", 2D) = "white" {}
@@ -101,9 +100,10 @@ Shader "Snowy/Owl/ToonLit"
             Name "ToonForwardLit"
             Tags{"LightMode" = "UniversalForward"}
 
+            Cull[_Cull]
             Blend[_SrcBlend][_DstBlend]
             ZWrite[_ZWrite]
-            Cull[_Cull]
+            ColorMask [_ColorMask]
 
             HLSLPROGRAM
             #pragma exclude_renderers gles gles3 glcore
@@ -113,9 +113,9 @@ Shader "Snowy/Owl/ToonLit"
             // Toon Material Keywords
             #pragma shader_feature_local _MASKMAP
             #pragma shader_feature_local _BRDFMAP
-            #pragma shader_feature_local _SSSMAP _RAMPMAP
-            #pragma shader_feature_local _SHADOW_TRANSITION_RAMPMAP
+            #pragma shader_feature_local _NONEMAP _SSSMAP _RAMPMAP _SSSMAP_WITHRAMP
             #pragma shader_feature_local _RIM_ON
+            #pragma shader_feature_local _RIM_FRESNEL _RIM_DEPTHOFFSET
             #pragma shader_feature_local _OUTLINE_ON
 
             // -------------------------------------
@@ -162,7 +162,7 @@ Shader "Snowy/Owl/ToonLit"
 
             half4 DebugFragment(Varyings input) : SV_Target
             {
-            #if defined(_SHADOW_TRANSITION_RAMPMAP)
+            #if defined(_SURFACE_TYPE_TRANSPARENT)
                 return half4(1,0,0,1);
             #else
                 return half4(0,1,0,1);
