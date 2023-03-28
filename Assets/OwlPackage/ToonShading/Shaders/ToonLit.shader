@@ -3,8 +3,8 @@ Shader "Snowy/Owl/ToonLit"
     Properties
     {
         [Main(Group_ToonSurface, _, off, off)] _Group_ToonSurface ("Toon Surface Setting", float) = 0
-            [Tex(Group_ToonSurface, _BaseColor)] [HDR] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
-            [HideInInspector][HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
+            [Sub(Group_ToonSurface)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }  
+            [Sub(Group_ToonSurface)] [HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
             [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
             [Channel(Group_ToonSurface)] _SmoothnessChannel ("【Smoothness】Channel", Vector) = (1, 0, 0, 0)
             [Sub(Group_ToonSurface)] _SmoothnessScale ("【Smoothness】Scale", Range(0.0, 2.0)) = 1.0
@@ -46,7 +46,7 @@ Shader "Snowy/Owl/ToonLit"
             [Channel(Group_BRDF)] _BRDFEmissiveChannel ("【BRDF Emissive】Channel", Vector) = (0, 0, 0, 1)
             [Sub(Group_BRDF)] _BRDFEmissiveScale ("【BRDF Emissive】Scale", Range(0.0, 1.0)) = 1.0
             
-            [Sub(Group_BRDF)] _SpecularColor ("Specular Color", Color) = (0.2, 0.2, 0.2)
+            [Sub(Group_BRDF)] _SpecularColor ("Specular Color", Color) = (1, 1, 1, 1)
             [SubToggle(Group_BRDF, _SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights ("Disable Specular Highlights", Float) = 0.0
 
         [Main(Group_Rim, _RIM_ON)] _RimLight ("RimLight Setting", float) = 0

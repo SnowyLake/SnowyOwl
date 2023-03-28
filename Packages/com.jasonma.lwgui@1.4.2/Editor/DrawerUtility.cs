@@ -138,7 +138,7 @@ namespace LWGUI
 			materialEditor.EnableInstancingField();
 			materialEditor.DoubleSidedGIField();
 			
-			EditorGUILayout.Space();
+			//EditorGUILayout.Space();
 			Helper.DrawLogo();
 		}
 
