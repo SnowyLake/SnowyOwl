@@ -11,12 +11,14 @@ Material:
   m_Shader: {fileID: 4800000, guid: 0cd2c2ec9d616f242bcda2a563b3ccf4, type: 3}
   m_ValidKeywords:
   - _RIM_FRESNEL
+  - _SHADOW_TRANSITION_OFF
   - _SSSMAP
   m_InvalidKeywords:
   - _
   - _ALPHACLIP_ON
   - _DSTBLEND_ON
   - _GLOSSYREFLECTIONS_OFF
+  - _NONEMAP
   - _RAMP_SSSMAP
   - _SHADOW_COLOR_SSSMAP
   - _SRCBLEND_ON
@@ -126,6 +128,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ShadowTransitionRamp:
+        m_Texture: {fileID: 2800000, guid: e8b3b17b68a55b64dbe4c3c2370f2de5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ShadowTransitionRampMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -210,8 +216,10 @@ Material:
     - _ShadowColor: 0
     - _ShadowColorMapType: 2
     - _ShadowColorType: 0
-    - _ShadowMapType: 1
+    - _ShadowMapType: 0
     - _ShadowThresholdScale: 1
+    - _ShadowTransitionSmoothRange: 0
+    - _ShadowTransitionType: 0
     - _ShadowType: 0
     - _Shininess: 0.2
     - _Smoothness: 0.5
@@ -228,8 +236,10 @@ Material:
     - _StencilWriteMask: 255
     - _Surface: 0
     - _ToonSurface: 0
+    - _TransitionType: 0
     - _UVSec: 0
     - _UesShadowTransitionRampMap: 0
+    - _UseDebugFragment: 0
     - _UseNormalMap: 0
     - _UseSSSMap: 0
     - _UseShadowTransitionRampMap: 0
@@ -237,6 +247,8 @@ Material:
     - _WorkflowMode: 1
     - _ZTest: 4
     - _ZWrite: 1
+    - _float_helpbox: 1
+    - _float_tooltip: 0
     m_Colors:
     - _BRDFEmissiveChannel: {r: 0, g: 0, b: 0, a: 1}
     - _BRDFMaskChannel: {r: 1, g: 0, b: 0, a: 0}

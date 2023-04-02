@@ -3,6 +3,9 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+#include "Assets\OwlPackage\ToonShading\ShaderLibrary\ShaderVariablesUtils.hlsl"
+#include "Assets\OwlPackage\ToonShading\ShaderLibrary\ToonLighting.hlsl"
+
 #if defined(_NORMALMAP)
 #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR
 #endif
@@ -164,18 +167,14 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(input);
 
-    SurfaceData surfaceData;
-    InitializeStandardLitSurfaceData(input.uv.xy, surfaceData);
-
+    ToonSurfaceData toonSurfaceData;
+    InitializeToonLitSurfaceData(input.uv.xy, toonSurfaceData);
+    
     InputData inputData;
-    InitializeInputData(input, surfaceData.normalTS, inputData);
+    InitializeInputData(input, toonSurfaceData.normalTS, inputData);
     SETUP_DEBUG_TEXTURE_DATA(inputData, input.uv, _BaseMap);
 
-#ifdef _DBUFFER
-    ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
-#endif
-
-    half4 color = UniversalFragmentPBR(inputData, surfaceData);
+    half4 color = ToonLighting(inputData, toonSurfaceData);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(color.a, _Surface);

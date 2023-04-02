@@ -2,29 +2,33 @@ Shader "Snowy/Owl/ToonLit"
 {
     Properties
     {
+        [Toggle(_UES_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
         [Main(Group_ToonSurface, _, off, off)] _Group_ToonSurface ("Toon Surface Setting", float) = 0
-            [Sub(Group_ToonSurface)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }  
             [Sub(Group_ToonSurface)] [HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
+            [Sub(Group_ToonSurface)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
+            [Title(Group_ToonSurface, Lighting Texture)]
             [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
             [Channel(Group_ToonSurface)] _SmoothnessChannel ("【Smoothness】Channel", Vector) = (1, 0, 0, 0)
             [Sub(Group_ToonSurface)] _SmoothnessScale ("【Smoothness】Scale", Range(0.0, 2.0)) = 1.0
-            [Channel(Group_ToonSurface)] _SpacularScaleChannel ("【SpacularScale】Channel", Vector) = (0, 1, 0, 0)
-            [Sub(Group_ToonSurface)] _SpacularScaleScale ("【SpacularScale】Scale", Range(0.0, 2.0)) = 1.0
+            [Channel(Group_ToonSurface)] _SpacularChannel ("【SpacularScale】Channel", Vector) = (0, 1, 0, 0)
+            [Sub(Group_ToonSurface)] _SpacularScale ("【SpacularScale】Scale", Range(0.0, 2.0)) = 1.0
             [Channel(Group_ToonSurface)] _ShadowThresholdChannel ("【ShadowThreshold】Channel", Vector) = (0, 0, 1, 0)
             [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 2.0)) = 1.0
             [Channel(Group_ToonSurface)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
             [Sub(Group_ToonSurface)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 2.0)) = 1.0
             [SubToggle(Group_ToonSurface, _NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
-                [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _NormalMap ("Normal Map", 2D) = "bump" { }
-                [HideInInspector] _NormalScale ("Normal Scale", Float) = 1.0
+                [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _BumpMap ("Normal Map", 2D) = "bump" { }
+                [HideInInspector] _BumpScale ("Normal Scale", Float) = 1.0
 
         [Main(Group_Shadow, _, off, off)] _Group_Shadow ("Shadow Setting", float) = 0
-            [KWEnum(Group_Shadow, None, _NONEMAP, SSS, _SSSMAP, Ramp, _RAMPMAP, SSS with Ramp, _SSSMAP_WITHRAMP)] _ShadowMapType("ShadowMap Type", Float) = 1.0
-            [Color(Group_Shadow, _)] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
-            [Tex(Group_Shadow_SSSMAP)] _SSSMap ("SSS Map", 2D) = "white" { }
-            [Tex(Group_Shadow_RAMPMAP)] _RampMap ("Ramp Map", 2D) = "white" { }
-            [Tex(Group_Shadow_SSSMAP_WITHRAMP)] _BaseSSSMap ("Base SSS Map", 2D) = "white" { }
-            [Ramp(Group_Shadow_SSSMAP_WITHRAMP, SSSRampMap)] _AdditionalRampMap ("Additional Ramp Map", 2D) = "white" { }
+            [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowMapType("ShadowMap Type", Float) = 0.0
+            [Tex(Group_Shadow_SSSMAP, _ShadowColor)] _SSSMap ("SSS Map", 2D) = "white" { }
+            [Tex(Group_Shadow_RAMPMAP, _ShadowColor)] _RampMap ("Ramp Map", 2D) = "white" { }
+            [HideInInspector] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
+            [KWEnum(Group_Shadow, None, _SHADOW_TRANSITION_OFF, Smooth, _SHADOW_TRANSITION_SMOOTH, Ramp, _SHADOW_TRANSITION_RAMP)]
+            [Helpbox(Shadow Transition Setting are only used when the ShadowMap Type is SSS)] _ShadowTransitionType("Shadow Transition Type", Float) = 0.0
+            [Sub(Group_Shadow_SHADOW_TRANSITION_SMOOTH)] _ShadowTransitionSmoothRange ("Smooth Range", Range(0.0, 1.0)) = 0.0
+            [Ramp(Group_Shadow_SHADOW_TRANSITION_RAMP)] _ShadowTransitionRampMap ("Ramp Map", 2D) = "white" { }
             [Title(Group_Shadow, Shadow Option)]
             [SubToggle(Group_Shadow, _RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
 
@@ -110,10 +114,15 @@ Shader "Snowy/Owl/ToonLit"
             #pragma target 4.5
 
             // -------------------------------------
+            // Debug Keywords
+            #pragma shader_feature_local _USE_DEBUG_FRAGMENT
+
+            // -------------------------------------
             // Toon Material Keywords
             #pragma shader_feature_local _MASKMAP
             #pragma shader_feature_local _BRDFMAP
-            #pragma shader_feature_local _NONEMAP _SSSMAP _RAMPMAP _SSSMAP_WITHRAMP
+            #pragma shader_feature_local _SSSMAP _RAMPMAP
+            #pragma shader_feature_local _SHADOW_TRANSITION_OFF _SHADOW_TRANSITION_SMOOTH _SHADOW_TRANSITION_RAMP
             #pragma shader_feature_local _RIM_ON
             #pragma shader_feature_local _RIM_FRESNEL _RIM_DEPTHOFFSET
             #pragma shader_feature_local _OUTLINE_ON
@@ -139,7 +148,7 @@ Shader "Snowy/Owl/ToonLit"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
-            // #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _CLUSTERED_RENDERING
 
             // -------------------------------------
@@ -154,20 +163,29 @@ Shader "Snowy/Owl/ToonLit"
             // #pragma multi_compile _ DOTS_INSTANCING_ON
 
             #pragma vertex ToonLitPassVertex
-            //#pragma fragment ToonLitPassFragment
-            #pragma fragment DebugFragment
-
+            #pragma fragment Frag
+            
             #include "ToonLitInput.hlsl"
             #include "ToonLitForwardPass.hlsl"
 
             half4 DebugFragment(Varyings input) : SV_Target
             {
-            #if defined(_SURFACE_TYPE_TRANSPARENT)
+            #if defined(_SSSMAP) && defined(_SHADOW_TRANSITION_RAMP)
                 return half4(1,0,0,1);
             #else
                 return half4(0,1,0,1);
             #endif
             }
+
+            half4 Frag(Varyings input) : SV_Target
+            {
+            #if defined(_USE_DEBUG_FRAGMENT)
+                return DebugFragment(input);
+            #else
+                return ToonLitPassFragment(input);
+            #endif
+            }
+
             ENDHLSL
         }
 
@@ -374,6 +392,5 @@ Shader "Snowy/Owl/ToonLit"
     }
 
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
-    //CustomEditor "UnityEditor.Rendering.Universal.ShaderGUI.LitShader"
     CustomEditor "LWGUI.LWGUI"
 }
