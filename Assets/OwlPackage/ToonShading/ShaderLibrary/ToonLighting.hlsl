@@ -2,7 +2,7 @@
 #define SNOWYOWL_TOON_LIGHTING_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-#include "Assets\OwlPackage\ToonShading\Shaders\ToonLitInput.hlsl"
+#include "Assets/OwlPackage/ToonShading/Shaders/ToonLitInput.hlsl"
 
 struct ToonLightingData
 {

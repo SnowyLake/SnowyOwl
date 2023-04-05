@@ -3,8 +3,8 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-#include "Assets\OwlPackage\ToonShading\ShaderLibrary\ShaderVariablesUtils.hlsl"
-#include "Assets\OwlPackage\ToonShading\ShaderLibrary\ToonLighting.hlsl"
+#include "Assets/OwlPackage/ToonShading/ShaderLibrary/ShaderVariablesUtils.hlsl"
+#include "Assets/OwlPackage/ToonShading/ShaderLibrary/ToonLighting.hlsl"
 
 #if defined(_NORMALMAP)
 #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR

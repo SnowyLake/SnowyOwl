@@ -5,8 +5,8 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
-#include "Assets\OwlPackage\ToonShading\ShaderLibrary\ShaderVariablesUtils.hlsl"
-#include "Assets\OwlPackage\ToonShading\Shaders\ToonData.hlsl"
+#include "Assets/OwlPackage/ToonShading/ShaderLibrary/ShaderVariablesUtils.hlsl"
+#include "Assets/OwlPackage/ToonShading/Shaders/ToonData.hlsl"
 
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
 CBUFFER_START(UnityPerMaterial)
