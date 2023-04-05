@@ -10,11 +10,11 @@ Shader "Snowy/Owl/ToonLit"
             [Title(Group_ToonSurface, Lighting Texture)]
             [Tex(Group_ToonSurface)] _ILMMap ("ILM Map", 2D) = "white" { }
             [Channel(Group_ToonSurface)] _SmoothnessChannel ("【Smoothness】Channel", Vector) = (1, 0, 0, 0)
-            [Sub(Group_ToonSurface)] _SmoothnessScale ("【Smoothness】Scale", Range(0.0, 2.0)) = 1.0
+            [Sub(Group_ToonSurface)] _SmoothnessScale ("【Smoothness】Scale", Range(0.0,  1024.0)) = 64.0
             [Channel(Group_ToonSurface)] _SpacularChannel ("【SpacularScale】Channel", Vector) = (0, 1, 0, 0)
-            [Sub(Group_ToonSurface)] _SpacularScale ("【SpacularScale】Scale", Range(0.0, 2.0)) = 1.0
+            [Sub(Group_ToonSurface)] _SpacularScale ("【SpacularScale】Scale", Range(0.0, 1.0)) = 0.5
             [Channel(Group_ToonSurface)] _ShadowThresholdChannel ("【ShadowThreshold】Channel", Vector) = (0, 0, 1, 0)
-            [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 1.0)) = 0.0
+            [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 1.0)) = 0.5
             [SubToggle(Group_ToonSurface, _EMISSION)] _EnableEmissive("Enable Emissive", Float) = 0.0
                 [Channel(Group_ToonSurface_EMISSION)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
                 [Sub(Group_ToonSurface_EMISSION)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 1.0)) = 0.5

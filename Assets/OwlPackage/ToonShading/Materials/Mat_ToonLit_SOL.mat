@@ -221,9 +221,9 @@ Material:
     - _Shininess: 0.2
     - _Smoothness: 0.5
     - _SmoothnessChannel: 0
-    - _SmoothnessScale: 1
+    - _SmoothnessScale: 1024
     - _SmoothnessTextureChannel: 0
-    - _SpacularScale: 1
+    - _SpacularScale: 0.5
     - _SpacularScaleScale: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -268,8 +268,8 @@ Material:
     - _RoughnessChannel: {r: 1, g: 0, b: 0, a: 0}
     - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowThresholdChannel: {r: 0, g: 1, b: 0, a: 0}
-    - _SmoothnessChannel: {r: 1, g: 0, b: 0, a: 0}
-    - _SpacularChannel: {r: 0, g: 0, b: 1, a: 0}
+    - _SmoothnessChannel: {r: 0, g: 0, b: 1, a: 0}
+    - _SpacularChannel: {r: 1, g: 0, b: 0, a: 0}
     - _SpacularScaleChannel: {r: 0, g: 1, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}

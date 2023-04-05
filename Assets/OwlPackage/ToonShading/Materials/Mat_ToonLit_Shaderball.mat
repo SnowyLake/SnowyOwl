@@ -186,7 +186,7 @@ Material:
     - _EnableEmission: 0
     - _EnableEmissive: 0
     - _EnvironmentReflections: 1
-    - _GIScale: 0.5
+    - _GIScale: 1
     - _General: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -221,14 +221,14 @@ Material:
     - _ShadowColorMapType: 2
     - _ShadowColorType: 0
     - _ShadowMapType: 0
-    - _ShadowThresholdScale: 0
+    - _ShadowThresholdScale: 0.5
     - _ShadowTransitionSmoothRange: 0
     - _ShadowTransitionType: 0
     - _ShadowType: 0
     - _Shininess: 0.2
     - _Smoothness: 0.5
     - _SmoothnessChannel: 0
-    - _SmoothnessScale: 1
+    - _SmoothnessScale: 64
     - _SmoothnessTextureChannel: 0
     - _SpacularScale: 1
     - _SpacularScaleScale: 1
@@ -262,7 +262,7 @@ Material:
     - _BRDFMetallicChannel: {r: 1, g: 0, b: 0, a: 0}
     - _BRDFOcclusionChannel: {r: 0, g: 0, b: 1, a: 0}
     - _BRDFSmoothnessChannel: {r: 0, g: 1, b: 0, a: 0}
-    - _BaseColor: {r: 0.6606889, g: 0.91249657, b: 0.9528302, a: 1}
+    - _BaseColor: {r: 0.30980396, g: 0.33662602, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveChannel: {r: 0, g: 0, b: 0, a: 1}
@@ -273,7 +273,7 @@ Material:
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimMaskChannel: {r: 0, g: 1, b: 0, a: 0}
     - _RoughnessChannel: {r: 1, g: 0, b: 0, a: 0}
-    - _ShadowColor: {r: 0.44722322, g: 0.4716981, b: 0.46992645, a: 1}
+    - _ShadowColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 1}
     - _ShadowThresholdChannel: {r: 0, g: 0, b: 1, a: 0}
     - _SmoothnessChannel: {r: 1, g: 0, b: 0, a: 0}
     - _SpacularChannel: {r: 0, g: 1, b: 0, a: 0}
