@@ -2,7 +2,8 @@ Shader "Snowy/Owl/ToonLit"
 {
     Properties
     {
-        [Toggle(_UES_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
+        [Toggle(_USE_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
+        
         [Main(Group_ToonSurface, _, off, off)] _Group_ToonSurface ("Toon Surface Setting", float) = 0
             [Sub(Group_ToonSurface)] [HDR] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
             [Sub(Group_ToonSurface)] [MainTexture] _BaseMap ("Base Map", 2D) = "white" { }
@@ -13,12 +14,14 @@ Shader "Snowy/Owl/ToonLit"
             [Channel(Group_ToonSurface)] _SpacularChannel ("【SpacularScale】Channel", Vector) = (0, 1, 0, 0)
             [Sub(Group_ToonSurface)] _SpacularScale ("【SpacularScale】Scale", Range(0.0, 2.0)) = 1.0
             [Channel(Group_ToonSurface)] _ShadowThresholdChannel ("【ShadowThreshold】Channel", Vector) = (0, 0, 1, 0)
-            [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 2.0)) = 1.0
-            [Channel(Group_ToonSurface)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
-            [Sub(Group_ToonSurface)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 2.0)) = 1.0
+            [Sub(Group_ToonSurface)] _ShadowThresholdScale ("【ShadowThreshold】Scale", Range(0.0, 1.0)) = 0.0
+            [SubToggle(Group_ToonSurface, _EMISSION)] _EnableEmissive("Enable Emissive", Float) = 0.0
+                [Channel(Group_ToonSurface_EMISSION)] _EmissiveChannel ("【Emissive】Channel", Vector) = (0, 0, 0, 1)
+                [Sub(Group_ToonSurface_EMISSION)] _EmissiveScale ("【Emissive】Scale", Range(0.0, 1.0)) = 0.5
             [SubToggle(Group_ToonSurface, _NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
-                [Tex(Group_ToonSurface_NORMALMAP, _NormalScale)] _BumpMap ("Normal Map", 2D) = "bump" { }
+                [Tex(Group_ToonSurface_NORMALMAP, _BumpScale)] _BumpMap ("Normal Map", 2D) = "bump" { }
                 [HideInInspector] _BumpScale ("Normal Scale", Float) = 1.0
+            [Sub(Group_ToonSurface)] _GIScale ("GI Scale", Range(0.0, 1.0)) = 0.5
 
         [Main(Group_Shadow, _, off, off)] _Group_Shadow ("Shadow Setting", float) = 0
             [KWEnum(Group_Shadow, SSS, _SSSMAP, Ramp, _RAMPMAP)] _ShadowMapType("ShadowMap Type", Float) = 0.0
@@ -60,6 +63,8 @@ Shader "Snowy/Owl/ToonLit"
         [Main(Group_Outline, _OUTLINE_ON)] _Outline ("Outline Setting", float) = 0
             [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
             [Sub(Group_Outline)] _OutlineWidth ("Outline Width", range(0.0, 1.0)) = 0.04
+            [SubToggle(Group_Outline, _INNER_OUTLINE_ON)] _UseInnerOutLine("Use Inner OutLine", Float) = 0.0
+            
 
         // SRP batching compatibility for Clear Coat (Not used in Lit)
         [HideInInspector] _ClearCoatMask("_ClearCoatMask", Float) = 0.0
@@ -92,7 +97,7 @@ Shader "Snowy/Owl/ToonLit"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit"}
+        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit" "IgnoreProjector" = "True"}
         LOD 300
 
         // ------------------------------------------------------------------
@@ -112,6 +117,7 @@ Shader "Snowy/Owl/ToonLit"
             HLSLPROGRAM
             #pragma exclude_renderers gles gles3 glcore
             #pragma target 4.5
+            #pragma enable_d3d11_debug_symbols
 
             // -------------------------------------
             // Debug Keywords
@@ -126,6 +132,7 @@ Shader "Snowy/Owl/ToonLit"
             #pragma shader_feature_local _RIM_ON
             #pragma shader_feature_local _RIM_FRESNEL _RIM_DEPTHOFFSET
             #pragma shader_feature_local _OUTLINE_ON
+            #pragma shader_feature_local _INNER_OUTLINE_ON
 
             // -------------------------------------
             // Material Keywords
@@ -167,6 +174,8 @@ Shader "Snowy/Owl/ToonLit"
             
             #include "ToonLitInput.hlsl"
             #include "ToonLitForwardPass.hlsl"
+
+            //#define _MAIN_LIGHT_SHADOWS 1
 
             half4 DebugFragment(Varyings input) : SV_Target
             {

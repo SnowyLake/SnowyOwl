@@ -4,6 +4,36 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Assets/OwlPackage/ToonShading/Shaders/ToonLitInput.hlsl"
 
+///////////////////////////////////////////////////////////////////////////////
+//                      Lighting Functions                                   //
+///////////////////////////////////////////////////////////////////////////////
+half3 ToonLightingLambert(half3 lightColor, half3 lightDir, half3 normal, half shadowThreshold)
+{
+    half NdotL = saturate(dot(normal, lightDir));
+    return lightColor * NdotL;
+}
+
+half3 ToonLightingSpecular(half3 lightColor, half3 lightDir, half3 normal, half3 viewDir, half4 specular, half smoothness)
+{
+    float3 halfVec = SafeNormalize(float3(lightDir) + float3(viewDir));
+    half NdotH = half(saturate(dot(normal, halfVec)));
+    half modifier = pow(NdotH, smoothness);
+    half3 specularReflection = specular.rgb * modifier;
+    return lightColor * specularReflection;
+}
+
+half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonSurfaceData, half isMainLight = 0)
+{
+    half3 brightColor = toonSurfaceData.albedo;
+	half3 shadowColor = toonSurfaceData.albedo * toonSurfaceData.shadowColor;
+
+    half NdotL = saturate(dot(inputData.normalWS, light.direction));
+    half isShadow = step(NdotL * light.shadowAttenuation, toonSurfaceData.shadowThreshold);
+    return lerp(half3(0, 0, 0), lerp(light.color * brightColor, shadowColor, isShadow), light.distanceAttenuation);
+
+    //return ToonLightingLambert(light.color, light.direction, inputData.normalWS);
+}
+
 struct ToonLightingData
 {
     half3 giColor;
@@ -17,7 +47,7 @@ ToonLightingData CreateToonLightingData(InputData inputData, ToonSurfaceData too
 {
     ToonLightingData toonLightingData;
 
-    toonLightingData.giColor = inputData.bakedGI;
+    toonLightingData.giColor = inputData.bakedGI * _GIScale * toonSurfaceData.albedo;
     toonLightingData.emissionColor = toonSurfaceData.emission;
     toonLightingData.vertexLightingColor = 0;
     toonLightingData.mainLightColor = 0;
@@ -26,26 +56,98 @@ ToonLightingData CreateToonLightingData(InputData inputData, ToonSurfaceData too
     return toonLightingData;
 }
 
-half4 ToonLighting(InputData inputData, ToonSurfaceData toonSurfaceData)
+half3 CalculateToonLightingColor(ToonLightingData toonLightingData, half3 albedo)
 {
-    #if defined(_SPECULARHIGHLIGHTS_OFF)
+    half3 lightingColor = 0;
+    if (IsOnlyAOLightingFeatureEnabled())
+    {
+        return toonLightingData.giColor; // Contains white + AO
+    }
+
+    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_GLOBAL_ILLUMINATION))
+    {
+        lightingColor += toonLightingData.giColor;
+    }
+
+    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_MAIN_LIGHT))
+    {
+        lightingColor += toonLightingData.mainLightColor;
+    }
+
+    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_ADDITIONAL_LIGHTS))
+    {
+        lightingColor += toonLightingData.additionalLightsColor;
+    }
+
+    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_VERTEX_LIGHTING))
+    {
+        lightingColor += toonLightingData.vertexLightingColor;
+    }
+
+    lightingColor *= albedo;
+
+    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_EMISSION))
+    {
+        lightingColor += toonLightingData.emissionColor;
+    }
+
+    return lightingColor;
+}
+
+half4 CalculateToonFinalColor(ToonLightingData toonLightingData, half alpha)
+{
+    half3 finalColor = CalculateToonLightingColor(toonLightingData, 1);
+
+    return half4(finalColor, alpha);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Owl ToonShading
+////////////////////////////////////////////////////////////////////////////////
+half4 OwlToonShadingFragment(InputData inputData, ToonSurfaceData toonSurfaceData)
+{
+#if defined(_SPECULARHIGHLIGHTS_OFF)
     bool specularHighlightsOff = true;
-    #else
+#else
     bool specularHighlightsOff = false;
-    #endif
+#endif
     
     uint meshRenderingLayers = GetMeshRenderingLightLayer();
-    Light mainLight = GetMainLight();
+    //half4 shadowMask = CalculateShadowMask(inputData);
+    Light mainLight = GetMainLight(inputData.shadowCoord);
 
     ToonLightingData toonLightingData = CreateToonLightingData(inputData, toonSurfaceData);
 
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
     {
-        
+        toonLightingData.mainLightColor += ToonDirectLighting(mainLight, inputData, toonSurfaceData, 1);
     }
+    //return half4(toonLightingData.mainLightColor,1);
+    #if defined(_ADDITIONAL_LIGHTS)
+    uint pixelLightCount = GetAdditionalLightsCount();
 
-    //return CalculateFinalColor(lightingData, surfaceData.alpha);
-    return half4(toonSurfaceData.albedo, toonSurfaceData.alpha);
+    #if USE_CLUSTERED_LIGHTING
+    for (uint lightIndex = 0; lightIndex < min(_AdditionalLightsDirectionalCount, MAX_VISIBLE_LIGHTS); lightIndex++)
+    {
+        Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
+
+        if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        {
+            toonLightingData.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
+        }
+    }
+    #endif
+
+    LIGHT_LOOP_BEGIN(pixelLightCount)
+        Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
+        if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        {
+            toonLightingData.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
+        }
+    LIGHT_LOOP_END
+    #endif
+
+    return CalculateToonFinalColor(toonLightingData, toonSurfaceData.alpha);
 }
 
 #endif // SNOWYOWL_TOON_LIGHTING_INCLUDE

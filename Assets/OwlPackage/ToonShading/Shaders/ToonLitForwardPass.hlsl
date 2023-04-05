@@ -1,8 +1,6 @@
 #ifndef SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 #define SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
 #include "Assets/OwlPackage/ToonShading/ShaderLibrary/ShaderVariablesUtils.hlsl"
 #include "Assets/OwlPackage/ToonShading/ShaderLibrary/ToonLighting.hlsl"
 
@@ -40,9 +38,9 @@ struct Varyings
     half  fogFactor                 : TEXCOORD5;
 #endif
 
-#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+//#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     float4 shadowCoord              : TEXCOORD6;
-#endif
+//#endif
     half3 vertexSH                  : TEXCOORD7;
 
     float4 positionCS               : SV_POSITION;
@@ -174,7 +172,7 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
     InitializeInputData(input, toonSurfaceData.normalTS, inputData);
     SETUP_DEBUG_TEXTURE_DATA(inputData, input.uv, _BaseMap);
 
-    half4 color = ToonLighting(inputData, toonSurfaceData);
+    half4 color = OwlToonShadingFragment(inputData, toonSurfaceData);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(color.a, _Surface);

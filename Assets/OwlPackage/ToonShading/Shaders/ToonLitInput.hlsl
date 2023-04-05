@@ -26,6 +26,8 @@ CBUFFER_START(UnityPerMaterial)
     half _BumpScale;
     half _ShadowTransitionSmoothRange;
 
+    half _GIScale;
+
     half _Cutoff;
     half _Surface;
 CBUFFER_END
@@ -45,13 +47,22 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
 {
     half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
     outToonSurfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb;
+
     outToonSurfaceData.alpha = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);
 
     half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, uv);
     outToonSurfaceData.smoothness = GetValueByTexChannel(ilm, _SmoothnessChannel) * _SmoothnessScale;
     outToonSurfaceData.specularScale = GetValueByTexChannel(ilm, _SpacularChannel) * _SpacularScale;
-    outToonSurfaceData.shadowThreshold = GetValueByTexChannel(ilm, _ShadowThresholdChannel) * _ShadowThresholdScale;
-    outToonSurfaceData.emission = GetValueByTexChannel(ilm, _EmissiveChannel) * _EmissiveScale;
+    outToonSurfaceData.shadowThreshold = GetValueByTexChannel(ilm, _ShadowThresholdChannel) * _ShadowThresholdScale + 0.0001;
+
+#if defined(_EMISSION) && !defined(_INNER_OUTLINE_ON)
+    outToonSurfaceData.emission = GetValueByTexChannel(ilm, _EmissiveChannel) * _EmissiveScale * outToonSurfaceData.albedo;
+#elif !defined(_EMISSION) && defined(_INNER_OUTLINE_ON) && defined(_OUTLINE_ON)
+    outToonSurfaceData.albedo *= half3(ilm.a, ilm.a, ilm.a);
+    outToonSurfaceData.emission = half3(0, 0, 0);
+#else
+    outToonSurfaceData.emission = half3(0, 0, 0);
+#endif
 
 #if defined(_SSSMAP)
     outToonSurfaceData.shadowColor = SAMPLE_TEXTURE2D(_SSSMap, sampler_SSSMap, uv).rgb * _ShadowColor;
