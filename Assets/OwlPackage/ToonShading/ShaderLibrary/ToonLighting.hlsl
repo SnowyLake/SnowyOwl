@@ -12,14 +12,16 @@ half3 ToonLightingDiffuse(half3 brightColor, half3 shadowColor, half isShadow)
     return lerp(brightColor, shadowColor, isShadow);
 }
 
-half3 ToonLightingSpecular(half3 brightColor, half3 lightDir, half3 normal, half3 viewDir, half smoothness, half specularScale, half isShadow)
+half3 ToonLightingSpecular(half3 brightColor, half3 specalurColor, half3 lightDir, half3 normal, half3 viewDir,
+                            half smoothness, half specularScale, half isShadow)
 {
+#if defined(_SPECULARHIGHLIGHTS_OFF)
+    return half3(0, 0, 0);
+#endif
 
-    float3 halfVec = SafeNormalize(float3(lightDir) + float3(viewDir));
-    half NdotH = half(saturate(dot(normal, halfVec)));
-    half modifier = pow(NdotH, smoothness);
-    half3 specularColor = brightColor * step(0.2f, specularScale * modifier);
-    return lerp(specularColor, half3(0, 0, 0), isShadow);
+    half NdotH = half(saturate(dot(normal, SafeNormalize(float3(lightDir) + float3(viewDir)))));
+    half3 color = brightColor * specalurColor * step(0.2f, specularScale * pow(NdotH, smoothness));
+    return lerp(color, half3(0, 0, 0), isShadow);
 }
 
 half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonSurfaceData, half isMainLight = 0)
@@ -28,17 +30,16 @@ half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonS
 	half3 shadowColor = toonSurfaceData.albedo * toonSurfaceData.shadowColor;
 
     half NdotL = saturate(dot(inputData.normalWS, light.direction));
-    
-
     half isShadow = step(NdotL * light.shadowAttenuation, toonSurfaceData.shadowThreshold);
 
     half3 toonDirectLighting = 0;
     toonDirectLighting += ToonLightingDiffuse(brightColor, shadowColor, isShadow);
-    toonDirectLighting += ToonLightingSpecular(brightColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, toonSurfaceData.smoothness, toonSurfaceData.specularScale, isShadow);
-    toonDirectLighting = lerp(half3(0, 0, 0), toonDirectLighting, light.distanceAttenuation);
-    return light.color * toonDirectLighting;
+    toonDirectLighting += ToonLightingSpecular(brightColor, toonSurfaceData.specularColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, 
+                                                toonSurfaceData.smoothness, toonSurfaceData.specularScale, isShadow);
 
-    //return ToonLightingDiffuse(light.color, light.direction, inputData.normalWS);
+    toonDirectLighting = lerp(half3(0, 0, 0), toonDirectLighting, light.distanceAttenuation);
+
+    return light.color * toonDirectLighting;
 }
 
 struct ToonLightingData
@@ -54,8 +55,8 @@ ToonLightingData CreateToonLightingData(InputData inputData, ToonSurfaceData too
 {
     ToonLightingData toonLightingData;
 
-    toonLightingData.giColor = inputData.bakedGI * _GIScale * toonSurfaceData.albedo;
-    toonLightingData.emissionColor = toonSurfaceData.emission;
+    toonLightingData.giColor = inputData.bakedGI * toonSurfaceData.giScale;
+    toonLightingData.emissionColor = toonSurfaceData.emissiveColor;
     toonLightingData.vertexLightingColor = 0;
     toonLightingData.mainLightColor = 0;
     toonLightingData.additionalLightsColor = 0;
@@ -73,7 +74,7 @@ half3 CalculateToonLightingColor(ToonLightingData toonLightingData, half3 albedo
 
     if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_GLOBAL_ILLUMINATION))
     {
-        lightingColor += toonLightingData.giColor;
+        lightingColor += toonLightingData.giColor * albedo;
     }
 
     if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_MAIN_LIGHT))
@@ -91,8 +92,6 @@ half3 CalculateToonLightingColor(ToonLightingData toonLightingData, half3 albedo
         lightingColor += toonLightingData.vertexLightingColor;
     }
 
-    lightingColor *= albedo;
-
     if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_EMISSION))
     {
         lightingColor += toonLightingData.emissionColor;
@@ -101,10 +100,9 @@ half3 CalculateToonLightingColor(ToonLightingData toonLightingData, half3 albedo
     return lightingColor;
 }
 
-half4 CalculateToonFinalColor(ToonLightingData toonLightingData, half alpha)
+half4 CalculateToonFinalColor(ToonLightingData toonLightingData, half3 albedo, half alpha)
 {
-    half3 finalColor = CalculateToonLightingColor(toonLightingData, 1);
-
+    half3 finalColor = CalculateToonLightingColor(toonLightingData, albedo);
     return half4(finalColor, alpha);
 }
 
@@ -112,15 +110,8 @@ half4 CalculateToonFinalColor(ToonLightingData toonLightingData, half alpha)
 /// Owl ToonShading
 ////////////////////////////////////////////////////////////////////////////////
 half4 OwlToonShadingFragment(InputData inputData, ToonSurfaceData toonSurfaceData)
-{
-#if defined(_SPECULARHIGHLIGHTS_OFF)
-    bool specularHighlightsOff = true;
-#else
-    bool specularHighlightsOff = false;
-#endif
-    
+{   
     uint meshRenderingLayers = GetMeshRenderingLightLayer();
-    //half4 shadowMask = CalculateShadowMask(inputData);
     Light mainLight = GetMainLight(inputData.shadowCoord);
 
     ToonLightingData toonLightingData = CreateToonLightingData(inputData, toonSurfaceData);
@@ -129,8 +120,8 @@ half4 OwlToonShadingFragment(InputData inputData, ToonSurfaceData toonSurfaceDat
     {
         toonLightingData.mainLightColor += ToonDirectLighting(mainLight, inputData, toonSurfaceData, 1);
     }
-    //return half4(toonLightingData.mainLightColor,1);
-    #if defined(_ADDITIONAL_LIGHTS)
+
+#if defined(_ADDITIONAL_LIGHTS)
     uint pixelLightCount = GetAdditionalLightsCount();
 
     #if USE_CLUSTERED_LIGHTING
@@ -152,9 +143,9 @@ half4 OwlToonShadingFragment(InputData inputData, ToonSurfaceData toonSurfaceDat
             toonLightingData.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
         }
     LIGHT_LOOP_END
-    #endif
+#endif
 
-    return CalculateToonFinalColor(toonLightingData, toonSurfaceData.alpha);
+    return CalculateToonFinalColor(toonLightingData, toonSurfaceData.albedo, toonSurfaceData.alpha);
 }
 
 #endif // SNOWYOWL_TOON_LIGHTING_INCLUDE

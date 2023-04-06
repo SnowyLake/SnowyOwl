@@ -11,17 +11,21 @@ Material:
   m_Shader: {fileID: 4800000, guid: 0cd2c2ec9d616f242bcda2a563b3ccf4, type: 3}
   m_ValidKeywords:
   - _MAIN_LIGHT_SHADOWS
-  - _RIM_FRESNEL
-  - _SHADOW_TRANSITION_OFF
-  - _SSSMAP
+  - _MATCAP_OFF
+  - _RIM_OFF
+  - _SHADOWMAP_OFF
+  - _SHADOWTRANSITION_OFF
   m_InvalidKeywords:
+  - SHADOWMAP_SSS
   - _
   - _ALPHACLIP_ON
   - _DSTBLEND_ON
   - _GLOSSYREFLECTIONS_OFF
   - _NONEMAP
+  - _RAMPMAP
   - _RAMP_SSSMAP
   - _SHADOW_COLOR_SSSMAP
+  - _SHADOW_TRANSITION_OFF
   - _SRCBLEND_ON
   - _ZWRITE_ON
   m_LightmapFlags: 4
@@ -82,6 +86,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MatcapMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -200,6 +208,8 @@ Material:
     - _Group_ToonSurface: 0
     - _IsTransparent: 0
     - _Mask: 1
+    - _Matcap: 0
+    - _MatcapMode: 0
     - _Metallic: 0
     - _MetallicScale: 0
     - _Mode: 0
@@ -221,6 +231,7 @@ Material:
     - _ShadowColorMapType: 2
     - _ShadowColorType: 0
     - _ShadowMapType: 0
+    - _ShadowThreshold: 0.5
     - _ShadowThresholdScale: 0.5
     - _ShadowTransitionSmoothRange: 0
     - _ShadowTransitionType: 0
@@ -264,23 +275,26 @@ Material:
     - _BRDFSmoothnessChannel: {r: 0, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 0.30980396, g: 0.33662602, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _CustomSpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveChannel: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissiveColor: {r: 1, g: 1, b: 1, a: 1}
     - _MatcapMaskChannel: {r: 0, g: 0, b: 1, a: 0}
     - _MetallicChannel: {r: 1, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _PBRMaskChannel: {r: 1, g: 0, b: 0, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RimLightMaskChannel: {r: 0, g: 1, b: 0, a: 0}
     - _RimMaskChannel: {r: 0, g: 1, b: 0, a: 0}
     - _RoughnessChannel: {r: 1, g: 0, b: 0, a: 0}
-    - _ShadowColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 1}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShadowThresholdChannel: {r: 0, g: 0, b: 1, a: 0}
     - _SmoothnessChannel: {r: 1, g: 0, b: 0, a: 0}
     - _SpacularChannel: {r: 0, g: 1, b: 0, a: 0}
     - _SpacularScaleChannel: {r: 0, g: 1, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}
-    - _SpecularColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _UnusedMaskChannel: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &2444745440444652325
