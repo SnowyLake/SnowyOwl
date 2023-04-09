@@ -10,10 +10,11 @@ Shader "Snowy/Owl/ToonLit"
 
             [Title(Group_ToonSurface, Specular Setting)]
             [Channel(Group_ToonSurface)] _SmoothnessChannel ("Smoothness Channel", Vector) = (1, 0, 0, 0)
-            [Sub(Group_ToonSurface)] _SmoothnessScale ("Smoothness Scale", Range(1,  1024)) = 64
+            [Sub(Group_ToonSurface)] _Smoothness ("Smoothness", Range(1,  1024)) = 64
             [Channel(Group_ToonSurface)] _SpacularChannel ("SpacularScale Channel", Vector) = (0, 1, 0, 0)
             [Sub(Group_ToonSurface)] _SpacularScale ("SpacularScale Scale", Range(0.0, 1.0)) = 0.5
-            [Sub(Group_ToonSurface)] _SpecularColor ("Custom Specular Color", Color) = (1, 1, 1, 1)
+            [Sub(Group_ToonSurface)] _CustomSpecularColor ("Custom Specular Color", Color) = (1, 1, 1, 1)
+            [Sub(Group_ToonSurface)] _CustomSpecularColorWeight ("Custom Specular Color Weight", Range(0.0, 1.0)) = 0.5
             [SubToggle(Group_ToonSurface, _SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights ("Disable Specular Highlights", Float) = 0.0
             
             [Title(Group_ToonSurface, Shadow Setting)]
@@ -23,10 +24,10 @@ Shader "Snowy/Owl/ToonLit"
             [Sub(Group_ToonSurface)] _ShadowColor ("Shadow Color", Color) = (1, 1, 1, 1)
             [Tex(Group_ToonSurface_SHADOWMAP_SSS)] _SSSMap ("SSS Map", 2D) = "white" { }
             [Tex(Group_ToonSurface_SHADOWMAP_RAMP)] _RampMap ("Ramp Map", 2D) = "white" { }
-            [KWEnum(Group_ToonSurface, None, _SHADOWTRANSITION_OFF, Smooth, _SHADOWTRANSITION_SMOOTH, Ramp, _SHADOWTRANSITION_RAMP)]
+            [KWEnum(Group_ToonSurface, Smooth, _SHADOWTRANSITION_SMOOTH, Ramp, _SHADOWTRANSITION_RAMP)]
             [Helpbox(Shadow Transition Setting are only used when the ShadowMap Type is SSS)] _ShadowTransitionType("Shadow Transition Type", Float) = 0.0
-            [Sub(Group_ToonSurface_SHADOW_TRANSITION_SMOOTH)] _ShadowTransitionSmoothRange ("Smooth Range", Range(0.0, 1.0)) = 0.0
-            [Ramp(Group_ToonSurface_SHADOW_TRANSITION_RAMP)] _ShadowTransitionRampMap ("Ramp Map", 2D) = "white" { }
+            [Sub(Group_ToonSurface_SHADOWTRANSITION_SMOOTH)] _ShadowTransitionSmoothRange ("Smooth Range", Range(0.0, 1.0)) = 0.0
+            [Ramp(Group_ToonSurface_SHADOWTRANSITION_RAMP)] _ShadowTransitionRampMap ("Ramp Map", 2D) = "white" { }
             [SubToggle(Group_ToonSurface, _RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
 
             [Title(Group_ToonSurface, GI and Emissive Setting)]
@@ -34,7 +35,7 @@ Shader "Snowy/Owl/ToonLit"
             [SubToggle(Group_ToonSurface, _EMISSION)] _EnableEmissive("Enable Emissive", Float) = 0.0
                 [Channel(Group_ToonSurface_EMISSION)] _EmissiveChannel ("Emissive Channel", Vector) = (0, 0, 0, 1)
                 [Sub(Group_ToonSurface_EMISSION)] _EmissiveScale ("Emissive Scale", Range(0.0, 1.0)) = 0.0
-                [Sub(Group_ToonSurface_EMISSION)] [HDR] _EmissiveColor ("Custom Emissive Color", Color) = (1, 1, 1, 1)
+                [Sub(Group_ToonSurface_EMISSION)] [HDR] _EmissiveColor ("Emissive Color", Color) = (1, 1, 1, 1)
 
             [Title(Group_ToonSurface, Normal Setting)]
             [SubToggle(Group_ToonSurface, _NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
@@ -43,7 +44,7 @@ Shader "Snowy/Owl/ToonLit"
 
         [Main(Group_Outline, _OUTLINE_ON)] _Outline ("Outline Setting", float) = 0
             [Sub(Group_Outline)] _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
-            [Sub(Group_Outline)] _OutlineWidth ("Outline Width", range(0.0, 1.0)) = 0.04
+            [Sub(Group_Outline)] _OutlineWidth ("Outline Width", range(0.0, 1.0)) = 0.5
             [SubToggle(Group_Outline, _INNER_OUTLINE_ON)] _UseInnerOutLine("Use Inner OutLine", Float) = 0.0
 
         [Main(Group_Mask, _MASKMAP)] _Group_Mask ("Mask Setting", float) = 0
@@ -132,7 +133,7 @@ Shader "Snowy/Owl/ToonLit"
             // -------------------------------------
             // SnowyOwl Toon Material Keywords
             #pragma shader_feature_local _SHADOWMAP_OFF _SHADOWMAP_SSS _SHADOWMAP_RAMP
-            #pragma shader_feature_local _SHADOWTRANSITION_OFF _SHADOWTRANSITION_SMOOTH _SHADOWTRANSITION_RAMP
+            #pragma shader_feature_local _SHADOWTRANSITION_SMOOTH _SHADOWTRANSITION_RAMP
             #pragma shader_feature_local _MASKMAP
             #pragma shader_feature_local _BRDFMAP
             #pragma shader_feature_local _RIM_OFF _RIM_FRESNEL _RIM_DEPTHOFFSET
@@ -178,8 +179,8 @@ Shader "Snowy/Owl/ToonLit"
             #pragma vertex ToonLitPassVertex
             #pragma fragment Frag
             
-            #include "ToonLitInput.hlsl"
-            #include "ToonLitForwardPass.hlsl"
+            #include "Assets/OwlPackage/ToonShading/Shaders/ToonLitInput.hlsl"
+            #include "Assets/OwlPackage/ToonShading/Shaders/ToonLitForwardPass.hlsl"
 
             //#define _MAIN_LIGHT_SHADOWS 1
 
@@ -204,6 +205,30 @@ Shader "Snowy/Owl/ToonLit"
             ENDHLSL
         }
 
+        Pass // Outline
+        {
+            Name "Outline"
+            Tags{"LightMode" = "Outline"}
+
+            Cull front
+            // ZTest Less
+            // ZWrite Off
+
+            HLSLPROGRAM
+
+            #pragma shader_feature_local _OUTLINE_ON
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+
+            #pragma multi_compile_fog
+
+            #pragma vertex OutlinePassVertex
+            #pragma fragment OutlinePassFragment
+
+            #include "Assets/OwlPackage/ToonShading/Shaders/ToonLitInput.hlsl"
+            #include "Assets/OwlPackage/ToonShading/Shaders/OutlinePass.hlsl"
+
+            ENDHLSL
+        }
         Pass // ShadowCaster Pass
         {
             Name "ShadowCaster"

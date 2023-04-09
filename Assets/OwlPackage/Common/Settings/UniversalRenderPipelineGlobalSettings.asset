@@ -20,7 +20,7 @@ MonoBehaviour:
   lightLayerName4: Light Layer 4
   lightLayerName5: Light Layer 5
   lightLayerName6: Light Layer 6
-  lightLayerName7: Light Layer 7
+  lightLayerName7: Outline
   m_StripDebugVariants: 1
   m_StripUnusedPostProcessingVariants: 1
   m_StripUnusedVariants: 1

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 778909048}
-  m_IndirectSpecularColor: {r: 0.18276463, g: 0.22847205, b: 0.3070431, a: 1}
+  m_IndirectSpecularColor: {r: 0.18276542, g: 0.2284723, b: 0.3070448, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -191,13 +191,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 129
+      objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 4f692c743e2704a4196cc8dbe3484f60, type: 2}
     - target: {fileID: 2300002, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 129
+      objectReference: {fileID: 0}
+    - target: {fileID: 2300002, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 4f692c743e2704a4196cc8dbe3484f60, type: 2}
+    - target: {fileID: 2300004, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 129
+      objectReference: {fileID: 0}
     - target: {fileID: 2300004, guid: 6f95629a5d9d02d43a131d29c1c63f7c, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -544,14 +556,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778909047}
-  m_LocalRotation: {x: 0.9156744, y: 0.059239794, z: -0.21866202, w: 0.33199105}
+  m_LocalRotation: {x: 0.90549654, y: 0.07336862, z: -0.25758106, w: 0.32915804}
   m_LocalPosition: {x: 0, y: 3.461, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1799473709}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 39.338, y: 207.834, z: 182.72}
+  m_LocalEulerAnglesHint: {x: 39.338, y: 212.731, z: 182.72}
 --- !u!114 &778909050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -658,7 +670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: f9642d39d366a6947865e899199c28b6, type: 3}
       propertyPath: m_RenderingLayerMask
-      value: 1
+      value: 129
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: f9642d39d366a6947865e899199c28b6, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -667,7 +679,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: f9642d39d366a6947865e899199c28b6, type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 2100000, guid: cf7cbe6daa9d1e143968c4f260a5e356, type: 2}
+      objectReference: {fileID: 2100000, guid: 4e1b45898e2950944802270f0bc29037, type: 2}
     - target: {fileID: 919132149155446097, guid: f9642d39d366a6947865e899199c28b6, type: 3}
       propertyPath: m_Name
       value: Shaderball
@@ -699,7 +711,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1509076280
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -11,26 +11,25 @@
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
 CBUFFER_START(UnityPerMaterial)
     float4 _BaseMap_ST;
+
     half4 _BaseColor;
+    half4 _CustomSpecularColor;
     half4 _ShadowColor;
-    half4 _SpecularColor;
     half4 _EmissiveColor;
+    
+    half4 _OutlineColor;
 
-    half4 _SmoothnessChannel;
-    half4 _SpacularChannel;
-    half4 _ShadowThresholdChannel;
-    half4 _EmissiveChannel;
-
-    half _SmoothnessScale; 
+    half _Smoothness; 
     half _SpacularScale;
+    half _CustomSpecularColorWeight;
     half _ShadowThreshold;
-    half _EmissiveScale;
-
-    half _GIScale;
-
-    half _BumpScale;
     half _ShadowTransitionSmoothRange;
+    half _EmissiveScale;
+    half _GIScale;
+    half _BumpScale;
 
+    half _OutlineWidth;
+    
     half _Cutoff;
     half _Surface;
 CBUFFER_END
@@ -53,9 +52,11 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
     outToonSurfaceData.alpha = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);
 
     half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, uv);
-    outToonSurfaceData.smoothness = GetValueByTexChannel(ilm, _SmoothnessChannel) * _SmoothnessScale;
+    
+    outToonSurfaceData.smoothness = GetValueByTexChannel(ilm, _SmoothnessChannel) * _Smoothness;
     outToonSurfaceData.specularScale = GetValueByTexChannel(ilm, _SpacularChannel) * _SpacularScale;
-    outToonSurfaceData.specularColor = _SpecularColor.rgb;
+    outToonSurfaceData.customSpecularColor = _CustomSpecularColor.rgb;
+    outToonSurfaceData.customSpecularColorWeight = _CustomSpecularColorWeight;
 
     outToonSurfaceData.giScale = _GIScale;
 #if defined(_EMISSION)

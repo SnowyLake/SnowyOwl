@@ -7,21 +7,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                      Lighting Functions                                   //
 ///////////////////////////////////////////////////////////////////////////////
-half3 ToonLightingDiffuse(half3 brightColor, half3 shadowColor, half isShadow)
+half3 ToonLightingDiffuse(Light light, half3 brightColor, half3 shadowColor, half isShadow)
 {
-    return lerp(brightColor, shadowColor, isShadow);
+    return light.color * lerp(brightColor, shadowColor, isShadow);
 }
 
-half3 ToonLightingSpecular(half3 brightColor, half3 specalurColor, half3 lightDir, half3 normal, half3 viewDir,
-                            half smoothness, half specularScale, half isShadow)
+half3 ToonLightingSpecular(Light light, InputData inputData, ToonSurfaceData toonSurfaceData, half3 brightColor, half isShadow)
 {
 #if defined(_SPECULARHIGHLIGHTS_OFF)
     return half3(0, 0, 0);
 #endif
 
-    half NdotH = half(saturate(dot(normal, SafeNormalize(float3(lightDir) + float3(viewDir)))));
-    half3 color = brightColor * specalurColor * step(0.2f, specularScale * pow(NdotH, smoothness));
-    return lerp(color, half3(0, 0, 0), isShadow);
+    half NdotH = half(saturate(dot(inputData.normalWS, SafeNormalize(float3(light.direction) + float3(inputData.viewDirectionWS)))));
+    half3 specularColor = lerp(light.color * brightColor, toonSurfaceData.customSpecularColor, toonSurfaceData.customSpecularColorWeight);
+    specularColor *= step(0.2f, toonSurfaceData.specularScale * pow(NdotH, toonSurfaceData.smoothness));
+    return lerp(specularColor, half3(0, 0, 0), isShadow);
 }
 
 half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonSurfaceData, half isMainLight = 0)
@@ -33,13 +33,12 @@ half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonS
     half isShadow = step(NdotL * light.shadowAttenuation, toonSurfaceData.shadowThreshold);
 
     half3 toonDirectLighting = 0;
-    toonDirectLighting += ToonLightingDiffuse(brightColor, shadowColor, isShadow);
-    toonDirectLighting += ToonLightingSpecular(brightColor, toonSurfaceData.specularColor, light.direction, inputData.normalWS, inputData.viewDirectionWS, 
-                                                toonSurfaceData.smoothness, toonSurfaceData.specularScale, isShadow);
+    toonDirectLighting += ToonLightingDiffuse(light, brightColor, shadowColor, isShadow);
+    toonDirectLighting += ToonLightingSpecular(light, inputData, toonSurfaceData, brightColor, isShadow);
 
     toonDirectLighting = lerp(half3(0, 0, 0), toonDirectLighting, light.distanceAttenuation);
 
-    return light.color * toonDirectLighting;
+    return toonDirectLighting;
 }
 
 struct ToonLightingData

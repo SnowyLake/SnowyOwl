@@ -1,7 +1,7 @@
 using UnityEditor;
 
 // Snowy is top-level namespace use for common class/struct.
-namespace Snowy
+namespace Snowy.Owl
 {
     public class ShaderCreateUtilsEditor : Editor
     {

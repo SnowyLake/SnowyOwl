@@ -6,9 +6,10 @@ struct ToonSurfaceData
     half3 albedo;
     half  alpha;
 
-    half smoothness;
     half specularScale;
-    half3 specularColor;
+    half smoothness;
+    half3 customSpecularColor;
+    half customSpecularColorWeight;
 
     half giScale;
     half3 emissiveColor;

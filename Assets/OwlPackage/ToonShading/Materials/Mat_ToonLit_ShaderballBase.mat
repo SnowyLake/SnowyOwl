@@ -7,21 +7,28 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_ToonLit_SOL
+  m_Name: Mat_ToonLit_ShaderballBase
   m_Shader: {fileID: 4800000, guid: 0cd2c2ec9d616f242bcda2a563b3ccf4, type: 3}
   m_ValidKeywords:
-  - _INNER_OUTLINE_ON
+  - _MAIN_LIGHT_SHADOWS
   - _MATCAP_OFF
-  - _OUTLINE_ON
   - _RIM_OFF
-  - _SHADOWMAP_SSS
+  - _SHADOWMAP_OFF
   - _SHADOWTRANSITION_SMOOTH
   m_InvalidKeywords:
-  - SHADOWMAP_OFF
+  - SHADOWMAP_SSS
   - _
+  - _ALPHACLIP_ON
+  - _DSTBLEND_ON
+  - _GLOSSYREFLECTIONS_OFF
+  - _NONEMAP
+  - _RAMPMAP
+  - _RAMP_SSSMAP
   - _SHADOWTRANSITION_OFF
+  - _SHADOW_COLOR_SSSMAP
   - _SHADOW_TRANSITION_OFF
-  - _SSSMAP
+  - _SRCBLEND_ON
+  - _ZWRITE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -40,7 +47,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 124cec12e69d8f942b18beaf4723b438, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseSSSMap:
@@ -68,7 +75,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ILMMap:
-        m_Texture: {fileID: 2800000, guid: ac6f0e62b2195f5409f20a3bd4b1da3e, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainBump:
@@ -120,7 +127,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SSSMap:
-        m_Texture: {fileID: 2800000, guid: cf07a0e1852dd5742833974ffd9f0e88, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ShadowColorRampMap:
@@ -178,8 +185,8 @@ Material:
     - _ClearCoatSmoothness: 0
     - _ColorMask: 15
     - _Cull: 2
-    - _CustomSpecularColorWeight: 0.142
-    - _Cutoff: 0
+    - _CustomSpecularColorWeight: 0
+    - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DisableReceiveShadows: 0
@@ -210,8 +217,8 @@ Material:
     - _Mode: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
-    - _Outline: 1
-    - _OutlineWidth: 0.382
+    - _Outline: 0
+    - _OutlineWidth: 0.04
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -225,16 +232,16 @@ Material:
     - _ShadowColor: 0
     - _ShadowColorMapType: 2
     - _ShadowColorType: 0
-    - _ShadowMapType: 1
+    - _ShadowMapType: 0
     - _ShadowThreshold: 0.5
-    - _ShadowThresholdScale: 1
+    - _ShadowThresholdScale: 0.5
     - _ShadowTransitionSmoothRange: 0
     - _ShadowTransitionType: 0
     - _ShadowType: 0
     - _Shininess: 0.2
-    - _Smoothness: 1024
+    - _Smoothness: 64
     - _SmoothnessChannel: 0
-    - _SmoothnessScale: 1024
+    - _SmoothnessScale: 64
     - _SmoothnessTextureChannel: 0
     - _SpacularScale: 0.5
     - _SpacularScaleScale: 1
@@ -251,13 +258,13 @@ Material:
     - _UVSec: 0
     - _UesShadowTransitionRampMap: 0
     - _UseDebugFragment: 0
-    - _UseInnerOutLine: 1
+    - _UseInnerOutLine: 0
     - _UseNormalMap: 0
     - _UseSSSMap: 0
     - _UseShadowTransitionRampMap: 0
     - _UseUIAlphaClip: 0
     - _WorkflowMode: 1
-    - _X: 0
+    - _X: 1
     - _ZTest: 4
     - _ZWrite: 1
     - _float_helpbox: 1
@@ -268,7 +275,7 @@ Material:
     - _BRDFMetallicChannel: {r: 1, g: 0, b: 0, a: 0}
     - _BRDFOcclusionChannel: {r: 0, g: 0, b: 1, a: 0}
     - _BRDFSmoothnessChannel: {r: 0, g: 1, b: 0, a: 0}
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CustomSpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
@@ -276,16 +283,16 @@ Material:
     - _EmissiveColor: {r: 1, g: 1, b: 1, a: 1}
     - _MatcapMaskChannel: {r: 0, g: 0, b: 1, a: 0}
     - _MetallicChannel: {r: 1, g: 0, b: 0, a: 0}
-    - _OutlineColor: {r: 0.03773582, g: 0.03773582, b: 0.03773582, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _PBRMaskChannel: {r: 1, g: 0, b: 0, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimLightMaskChannel: {r: 0, g: 1, b: 0, a: 0}
     - _RimMaskChannel: {r: 0, g: 1, b: 0, a: 0}
     - _RoughnessChannel: {r: 1, g: 0, b: 0, a: 0}
-    - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowThresholdChannel: {r: 0, g: 1, b: 0, a: 0}
-    - _SmoothnessChannel: {r: 0, g: 0, b: 1, a: 0}
-    - _SpacularChannel: {r: 1, g: 0, b: 0, a: 0}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowThresholdChannel: {r: 0, g: 0, b: 1, a: 0}
+    - _SmoothnessChannel: {r: 1, g: 0, b: 0, a: 0}
+    - _SpacularChannel: {r: 0, g: 1, b: 0, a: 0}
     - _SpacularScaleChannel: {r: 0, g: 1, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}
