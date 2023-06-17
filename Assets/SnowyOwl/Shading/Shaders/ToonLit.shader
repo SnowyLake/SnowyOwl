@@ -179,8 +179,8 @@ Shader "SnowyOwl/ToonLit"
             #pragma vertex ToonLitPassVertex
             #pragma fragment Frag
             
-            #include "Assets/SnowyOwl/ToonShading/Shaders/ToonLitInput.hlsl"
-            #include "Assets/SnowyOwl/ToonShading/Shaders/ToonLitForwardPass.hlsl"
+            #include "Assets/SnowyOwl/Shading/Shaders/ToonLitInput.hlsl"
+            #include "Assets/SnowyOwl/Shading/Shaders/ToonLitForwardPass.hlsl"
 
             //#define _MAIN_LIGHT_SHADOWS 1
 
@@ -224,8 +224,8 @@ Shader "SnowyOwl/ToonLit"
             #pragma vertex OutlinePassVertex
             #pragma fragment OutlinePassFragment
 
-            #include "Assets/SnowyOwl/ToonShading/Shaders/ToonLitInput.hlsl"
-            #include "Assets/SnowyOwl/ToonShading/Shaders/OutlinePass.hlsl"
+            #include "Assets/SnowyOwl/Shading/Shaders/ToonLitInput.hlsl"
+            #include "Assets/SnowyOwl/Shading/Shaders/OutlinePass.hlsl"
 
             ENDHLSL
         }

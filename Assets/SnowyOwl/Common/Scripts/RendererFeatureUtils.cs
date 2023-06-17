@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
@@ -7,17 +6,18 @@ using UnityEngine.Rendering.Universal;
 
 namespace Snowy.Owl
 {
-    [System.Serializable]
+    [Serializable]
     public class RenderPassSettings
     {
         public FilterSettings filterSettings = new();
 
+        // Hard code in custom renderer feature
         [NonSerialized] public RenderPassEvent renderEvent;
         [NonSerialized] public RenderQueueType renderQueue;
         [NonSerialized] public List<string> renderPasses;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class FilterSettings
     {
         public LayerMask layerMask;
@@ -26,19 +26,25 @@ namespace Snowy.Owl
         public FilterSettings()
         {
             layerMask = 0;
-            renderingLayerMask = RenderingLayerMask.LightLayerDefault;
+            renderingLayerMask = 1;
         }
     }
 
-    public enum RenderingLayerMask
+    [Serializable]
+    public struct RenderingLayerMask
     {
-        LightLayerDefault,
-        LightLayer1,
-        LightLayer2,
-        LightLayer3,
-        LightLayer4,
-        LightLayer5,
-        LightLayer6,
-        Outline
+        public uint value;
+
+        public static implicit operator uint(RenderingLayerMask mask)
+        {
+            return mask.value;
+        }
+
+        public static implicit operator RenderingLayerMask(uint intVal)
+        {
+            RenderingLayerMask result = default;
+            result.value = intVal;
+            return result;
+        }
     }
 }
