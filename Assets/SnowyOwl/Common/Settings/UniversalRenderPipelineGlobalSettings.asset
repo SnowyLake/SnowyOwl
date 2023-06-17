@@ -21,7 +21,7 @@ MonoBehaviour:
   - Light Layer 4
   - Light Layer 5
   - Light Layer 6
-  - Outline
+  - Layer07_Outline
   m_ValidRenderingLayers: 255
   lightLayerName0: Light Layer default
   lightLayerName1: Light Layer 1
