@@ -7,7 +7,7 @@ namespace Snowy.Owl
     [CustomPropertyDrawer(typeof(RenderingLayerMask))]
     public class RenderingLayerMaskEditor : PropertyDrawer
     {
-        public override void OnGUI(Rect controlRect, SerializedProperty property, GUIContent style)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var mask = property.FindPropertyRelative("value");
             int renderingLayer = mask.intValue;
@@ -20,17 +20,17 @@ namespace Snowy.Owl
                 var newRenderingLayerMaskNames = new string[maskCount];
                 for (int i = 0; i < maskCount; ++i)
                 {
-                    newRenderingLayerMaskNames[i] = i < renderingLayerMaskNames.Length ? renderingLayerMaskNames[i] : $"Unused Layer {i}";
+                    newRenderingLayerMaskNames[i] = i < renderingLayerMaskNames.Length ? renderingLayerMaskNames[i] : $"Layer{i}_Unused";
                 }
                 renderingLayerMaskNames = newRenderingLayerMaskNames;
 
                 EditorGUILayout.HelpBox($"One or more of the Rendering Layers is not defined in the Universal Global Settings asset.", MessageType.Warning);
             }
 
-            EditorGUI.BeginProperty(controlRect, style, property);
+            EditorGUI.BeginProperty(position, label, property);
 
             EditorGUI.BeginChangeCheck();
-            renderingLayer = EditorGUI.MaskField(controlRect, style, renderingLayer, renderingLayerMaskNames);
+            renderingLayer = EditorGUI.MaskField(position, label, renderingLayer, renderingLayerMaskNames);
 
             if (EditorGUI.EndChangeCheck())
                 mask.uintValue = (uint)renderingLayer;

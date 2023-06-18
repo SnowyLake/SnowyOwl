@@ -77,7 +77,7 @@ namespace UnityEditor.Rendering.Universal
 
         string GetDefaultLayerName(int index)
         {
-            return index == 0 ? "Default" : $"Layer {index}";
+            return index == 0 ? "Layer0_Default" : $"Layer{index}_Unused";
         }
     }
 }
