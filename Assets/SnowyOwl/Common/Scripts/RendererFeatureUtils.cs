@@ -25,7 +25,7 @@ namespace Snowy.Owl
 
         public FilterSettings()
         {
-            layerMask = 0;
+            layerMask = 1;
             renderingLayerMask = 1;
         }
     }
