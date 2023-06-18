@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -15,9 +14,9 @@ namespace Snowy.Owl.Shading
 
         public OutlinePassSettings settings = new()
         {
-            renderEvent = RenderPassEvent.BeforeRenderingTransparents,
-            renderQueue = RenderQueueType.Opaque,
-            renderPasses = new() { "Outline" }
+            isOpaque = true,
+            passEvent = RenderPassEvent.BeforeRenderingTransparents,
+            passTags = new() { "Outline" }
         };
         private OutlinePass m_Pass;
 
@@ -34,41 +33,56 @@ namespace Snowy.Owl.Shading
 
         class OutlinePass : ScriptableRenderPass
         {
-            private ProfilingSampler m_ProfilingSampler = new("OutlinePass");
-            private OutlinePassSettings m_Settings;
-            private FilteringSettings filteringSettings;
-            private List<ShaderTagId> shaderTagIds = new();
+            private class PassData
+            {
+                internal RenderingData renderingData; // Only used by RenderGraph
+                internal ProfilingSampler profilingSampler;
+
+                internal bool isOpaque;
+                internal FilteringSettings filteringSettings;
+                internal List<ShaderTagId> passTags;
+            }
+            private PassData m_PassData;
+
             public OutlinePass(OutlinePassSettings settings)
             {
-                m_Settings = settings;
-                this.renderPassEvent = m_Settings.renderEvent;
+                this.renderPassEvent = settings.passEvent;
 
-                var renderQueue = m_Settings.renderQueue == RenderQueueType.Transparent ? RenderQueueRange.transparent : RenderQueueRange.opaque;
-                this.filteringSettings = new FilteringSettings(renderQueue, m_Settings.filterSettings.layerMask, m_Settings.filterSettings.renderingLayerMask);
-
-                foreach (var pass in m_Settings.renderPasses)
+                m_PassData = new()
                 {
-                    shaderTagIds.Add(new ShaderTagId(pass));
+                    isOpaque = settings.isOpaque,
+                    passTags = new(),
+                    profilingSampler = new("OutlinePass")
+                };
+                var renderQueueRange = m_PassData.isOpaque ? RenderQueueRange.opaque : RenderQueueRange.transparent;
+                m_PassData.filteringSettings = new FilteringSettings(renderQueueRange, settings.filterSettings.layerMask, settings.filterSettings.renderingLayerMask);
+                foreach (var tag in settings.passTags)
+                {
+                    m_PassData.passTags.Add(new ShaderTagId(tag));
                 }
             }
             public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
             {
             }
 
+            private static void ExecutePass(ScriptableRenderContext context, PassData passData, ref RenderingData renderingData)
+            {
+                var cmd = renderingData.commandBuffer;
+
+                using (new ProfilingScope(cmd, passData.profilingSampler))
+                {
+                    context.ExecuteCommandBuffer(cmd);
+                    cmd.Clear();
+
+                    SortingCriteria sortFlags = passData.isOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
+                    DrawingSettings drawingSettings = RenderingUtils.CreateDrawingSettings(passData.passTags, ref renderingData, sortFlags);
+
+                    context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref passData.filteringSettings);
+                }
+            }
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
-                var cmd = CommandBufferPool.Get();
-                using (new ProfilingScope(cmd, m_ProfilingSampler))
-                {
-                    
-                    SortingCriteria sortingCriteria = (m_Settings.renderQueue == RenderQueueType.Transparent) ? SortingCriteria.CommonTransparent : renderingData.cameraData.defaultOpaqueSortFlags;
-                    DrawingSettings drawingSettings = CreateDrawingSettings(shaderTagIds, ref renderingData, sortingCriteria);
-
-                    context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filteringSettings);
-                }
-
-                context.ExecuteCommandBuffer(cmd);
-                CommandBufferPool.Release(cmd);
+                ExecutePass(context, m_PassData, ref renderingData);
             }
 
             public override void OnCameraCleanup(CommandBuffer cmd)

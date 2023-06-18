@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.Rendering.Universal;
 
 namespace Snowy.Owl
@@ -11,10 +10,10 @@ namespace Snowy.Owl
     {
         public FilterSettings filterSettings = new();
 
-        // Hard code in custom renderer feature
-        [NonSerialized] public RenderPassEvent renderEvent;
-        [NonSerialized] public RenderQueueType renderQueue;
-        [NonSerialized] public List<string> renderPasses;
+        // Hardcode in Custom RendererFeature
+        [NonSerialized] public bool isOpaque;
+        [NonSerialized] public RenderPassEvent passEvent;
+        [NonSerialized] public List<string> passTags;
     }
 
     [Serializable]
