@@ -23,7 +23,7 @@ CBUFFER_START(UnityPerMaterial)
     half _SpacularScale;
     half _CustomSpecularColorWeight;
     half _ShadowThreshold;
-    half _ShadowTransitionSmoothRange;
+    half _ShadowTransitionScale;
     half _EmissiveScale;
     half _GIScale;
     half _BumpScale;
@@ -34,15 +34,13 @@ CBUFFER_START(UnityPerMaterial)
     half _Surface;
 CBUFFER_END
 
-TEXTURE2D(_ILMMap);     SAMPLER(sampler_ILMMap);
+TEXTURE2D(_ILMMap);         SAMPLER(sampler_ILMMap);
 
 #if defined(_SHADOWMAP_SSS)
-TEXTURE2D(_SSSMap);     SAMPLER(sampler_SSSMap);
-    #if defined(_SHADOWTRANSITION_RAMP)
-    EXTURE2D(_ShadowTransitionRampMap);    SAMPLER(sampler_ShadowTransitionRampMap);
-    #endif
+    TEXTURE2D(_SSSMap);         SAMPLER(sampler_SSSMap);
+    TEXTURE2D(_SSSRampMap);     SAMPLER(sampler_SSSRampMap);
 #elif defined(_SHADOWMAP_RAMP)
-TEXTURE2D(_RampMap);    SAMPLER(sampler_RampMap);
+    TEXTURE2D(_RampMap);    SAMPLER(sampler_RampMap);
 #endif
 
 inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonSurfaceData)

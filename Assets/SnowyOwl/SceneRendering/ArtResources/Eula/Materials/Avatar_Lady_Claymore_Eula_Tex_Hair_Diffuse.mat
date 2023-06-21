@@ -9,13 +9,13 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Avatar_Lady_Claymore_Eula_Tex_Hair_Diffuse
   m_Shader: {fileID: 4800000, guid: 0cd2c2ec9d616f242bcda2a563b3ccf4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _MATCAP_OFF
   - _OUTLINE_ON
-  - _RECEIVE_SHADOWS_OFF
   - _RIM_OFF
   - _SHADOWMAP_OFF
-  - _SHADOWTRANSITION_SMOOTH
   - _SPECULARHIGHLIGHTS_OFF
   m_InvalidKeywords:
   - _
@@ -25,6 +25,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -92,6 +93,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SSSRampMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ShadowRampMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ShadowSSSMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ShadowTransitionRampMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -134,6 +147,7 @@ Material:
     - _DstBlend: 0
     - _EmissiveScale: 0
     - _EnableEmissive: 0
+    - _EnableHQSelfShadows: 0
     - _EnvironmentReflections: 1
     - _GIScale: 0.5
     - _General: 0
@@ -158,6 +172,7 @@ Material:
     - _RimLightType: 0
     - _ShadowMapType: 0
     - _ShadowThreshold: 0.5
+    - _ShadowTransitionScale: 0
     - _ShadowTransitionSmoothRange: 0
     - _ShadowTransitionType: 0
     - _Smoothness: 1024

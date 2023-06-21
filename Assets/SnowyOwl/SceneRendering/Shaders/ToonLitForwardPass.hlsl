@@ -165,8 +165,8 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
 {
     UNITY_SETUP_INSTANCE_ID(input);
 
-    half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv.xy);
-    //return half4 (ilm.ggg, 1);
+    // half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv.xy);
+    // return half4 (ilm.rrr, 1);
 
     ToonSurfaceData toonSurfaceData;
     InitializeToonLitSurfaceData(input.uv.xy, toonSurfaceData);
