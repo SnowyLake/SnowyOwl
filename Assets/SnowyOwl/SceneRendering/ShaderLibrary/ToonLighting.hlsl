@@ -55,7 +55,7 @@ ToonLightingData CreateToonLightingData(InputData inputData, ToonSurfaceData too
     ToonLightingData toonLightingData;
 
     toonLightingData.giColor = inputData.bakedGI * toonSurfaceData.giScale;
-    toonLightingData.emissionColor = toonSurfaceData.emissiveColor;
+    toonLightingData.emissionColor = toonSurfaceData.emissionColor;
     toonLightingData.vertexLightingColor = 0;
     toonLightingData.mainLightColor = 0;
     toonLightingData.additionalLightsColor = 0;

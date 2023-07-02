@@ -12,7 +12,7 @@ struct ToonSurfaceData
     half customSpecularColorWeight;
 
     half giScale;
-    half3 emissiveColor;
+    half3 emissionColor;
 
     half shadowThreshold;
     half3 shadowColor;

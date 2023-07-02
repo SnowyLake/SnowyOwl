@@ -1,7 +1,7 @@
 #ifndef SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 #define SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 
-#include "Assets/SnowyOwl/SceneRendering/ShaderLibrary/ShaderVariablesUtils.hlsl"
+#include "Assets/SnowyOwl/SceneRendering/ShaderLibrary/TextureChannelUtils.hlsl"
 #include "Assets/SnowyOwl/SceneRendering/ShaderLibrary/ToonLighting.hlsl"
 
 #if defined(_NORMALMAP)
@@ -166,7 +166,7 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
     UNITY_SETUP_INSTANCE_ID(input);
 
     // half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv.xy);
-    // return half4 (ilm.rrr, 1);
+    // return half4 (ilm.bbb, 1);
 
     ToonSurfaceData toonSurfaceData;
     InitializeToonLitSurfaceData(input.uv.xy, toonSurfaceData);

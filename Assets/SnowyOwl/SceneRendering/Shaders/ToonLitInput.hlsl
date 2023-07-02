@@ -5,7 +5,7 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
-#include "Assets/SnowyOwl/SceneRendering/ShaderLibrary/ShaderVariablesUtils.hlsl"
+#include "Assets/SnowyOwl/SceneRendering/ShaderLibrary/TextureChannelUtils.hlsl"
 #include "Assets/SnowyOwl/SceneRendering/Shaders/ToonData.hlsl"
 
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
@@ -15,7 +15,7 @@ CBUFFER_START(UnityPerMaterial)
     half4 _BaseColor;
     half4 _CustomSpecularColor;
     half4 _ShadowColor;
-    half4 _EmissiveColor;
+    half4 _EmissionColor;
     
     half4 _OutlineColor;
 
@@ -23,8 +23,8 @@ CBUFFER_START(UnityPerMaterial)
     half _SpacularScale;
     half _CustomSpecularColorWeight;
     half _ShadowThreshold;
-    half _ShadowTransitionScale;
-    half _EmissiveScale;
+    half _ShadowSSSRampScale;
+    half _EmissionScale;
     half _GIScale;
     half _BumpScale;
 
@@ -36,11 +36,13 @@ CBUFFER_END
 
 TEXTURE2D(_ILMMap);         SAMPLER(sampler_ILMMap);
 
-#if defined(_SHADOWMAP_SSS)
-    TEXTURE2D(_SSSMap);         SAMPLER(sampler_SSSMap);
-    TEXTURE2D(_SSSRampMap);     SAMPLER(sampler_SSSRampMap);
-#elif defined(_SHADOWMAP_RAMP)
-    TEXTURE2D(_RampMap);    SAMPLER(sampler_RampMap);
+#if defined(_SHADOWMAP_SSS) || defined(_SHADOWMAP_SSS_RAMP)
+    TEXTURE2D(_ShadowSSSMap);         SAMPLER(sampler_ShadowSSSMap);
+    #if defined(_SHADOWMAP_SSS_RAMP)
+        TEXTURE2D(_ShadowSSSRampMap);     SAMPLER(sampler_ShadowSSSRampMap);
+    #endif
+#elif defined(_SHADOWMAP_MULTICOLOR_RAMP)
+    TEXTURE2D(_ShadowRampMap);    SAMPLER(sampler_ShadowRampMap);
 #endif
 
 inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonSurfaceData)
@@ -51,26 +53,26 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
 
     half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, uv);
     
-    outToonSurfaceData.smoothness = GetValueByTexChannel(ilm, _SmoothnessChannel) * _Smoothness;
-    outToonSurfaceData.specularScale = GetValueByTexChannel(ilm, _SpacularChannel) * _SpacularScale;
+    outToonSurfaceData.smoothness = GetILMSmoothness(ilm, CHANNEL_R) * _Smoothness;
+    outToonSurfaceData.specularScale = GetILMSpecularScale(ilm, CHANNEL_B) * _SpacularScale;
     outToonSurfaceData.customSpecularColor = _CustomSpecularColor.rgb;
     outToonSurfaceData.customSpecularColorWeight = _CustomSpecularColorWeight;
 
     outToonSurfaceData.giScale = _GIScale;
-#if defined(_EMISSION)
-    half emissive = GetValueByTexChannel(ilm, _EmissiveChannel) * _EmissiveScale;
-    outToonSurfaceData.emissiveColor = emissive * _EmissiveColor.rgb;
-#elif !defined(_EMISSION) && defined(_INNER_OUTLINE_ON) && defined(_OUTLINE_ON)
+#if defined(_EMISSION) && !defined(_OUTLINE_INNER_ON)
+    half emission = GetILMEmission(ilm, CHANNEL_A) * _EmissionColor;
+    outToonSurfaceData.emissionColor = emission * _EmissionColor.rgb;
+#elif defined(_OUTLINE_ON) && defined(_OUTLINE_INNER_ON)
     outToonSurfaceData.albedo *= half3(ilm.a, ilm.a, ilm.a);
-    outToonSurfaceData.emissiveColor = half3(0, 0, 0);
+    outToonSurfaceData.emissionColor = half3(0, 0, 0);
 #else
-    outToonSurfaceData.emissiveColor = half3(0, 0, 0);
+    outToonSurfaceData.emissionColor = half3(0, 0, 0);
 #endif
 
-    outToonSurfaceData.shadowThreshold = GetValueByTexChannel(ilm, _ShadowThresholdChannel) * (_ShadowThreshold + 0.0001);
-#if defined(_SHADOWMAP_SSS)
-    outToonSurfaceData.shadowColor = SAMPLE_TEXTURE2D(_SSSMap, sampler_SSSMap, uv).rgb * _ShadowColor;
-#elif defined(_SHADOWMAP_RAMP)
+    outToonSurfaceData.shadowThreshold = GetILMShadowThreshold(ilm, CHANNEL_G) * (_ShadowThreshold + 0.0001);
+#if defined(_SHADOWMAP_SSS) || defined(_SHADOWMAP_SSS_RAMP)
+    outToonSurfaceData.shadowColor = SAMPLE_TEXTURE2D(_ShadowSSSMap, sampler_ShadowSSSMap, uv).rgb * _ShadowColor;
+#elif defined(_SHADOWMAP_MULTICOLOR_RAMP)
     outToonSurfaceData.shadowColor = half3(1, 1, 1); // TODO: Shadow RampMap Sample
 #else
     outToonSurfaceData.shadowColor = _ShadowColor;
