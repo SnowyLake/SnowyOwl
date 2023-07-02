@@ -1,11 +1,10 @@
 {
   "dependencies": {
-    "com.jasonma.lwgui": {
-      "version": "https://github.com/JasonMa0012/LWGUI.git",
+    "com.needle.shadergraph-markdown": {
+      "version": "file:shadergraph-markdown-release-1.5.1",
       "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "a97912383756051bd43022b3e4090ce00f6d5a8d"
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

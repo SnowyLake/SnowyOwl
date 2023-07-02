@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.jasonma.lwgui": "https://github.com/JasonMa0012/LWGUI.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.feature.development": "1.0.1",
