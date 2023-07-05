@@ -69,7 +69,7 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
     outToonSurfaceData.emissionColor = half3(0, 0, 0);
 #endif
 
-    outToonSurfaceData.shadowThreshold = GetILMShadowThreshold(ilm, CHANNEL_G) * (_ShadowThreshold + 0.0001);
+    outToonSurfaceData.shadowThreshold = saturate(GetILMShadowThreshold(ilm, CHANNEL_G) * (_ShadowThreshold + 0.0001));
 #if defined(_SHADOWMAP_SSS) || defined(_SHADOWMAP_SSS_RAMP)
     outToonSurfaceData.shadowColor = SAMPLE_TEXTURE2D(_ShadowSSSMap, sampler_ShadowSSSMap, uv).rgb * _ShadowColor;
 #elif defined(_SHADOWMAP_MULTICOLOR_RAMP)

@@ -6,10 +6,10 @@
 // TODO: control outline width by vertex color
 struct Attributes
 {
-    float4 positionOS : POSITION;
-    float4 normalOS : NORMAL;
-    float4 tangent : TANGENT;
-    float4 texcoord : TEXCOORD;
+    float4 positionOS   : POSITION;
+    float4 normalOS     : NORMAL;
+    float4 tangent      : TANGENT;
+    float4 texcoord     : TEXCOORD0;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -25,6 +25,10 @@ struct Varyings
 Varyings OutlinePassVertex(Attributes input)
 {
     Varyings output = (Varyings)0;
+#if !defined(_OUTLINE_ON)
+    return output;
+#endif
+
     UNITY_SETUP_INSTANCE_ID(input);
 
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
@@ -51,10 +55,10 @@ Varyings OutlinePassVertex(Attributes input)
 
 half4 OutlinePassFragment(Varyings input) : SV_TARGET
 {
-    half4 color;
 #if !defined(_OUTLINE_ON)
-    return color;
+    return 0;
 #endif
+    half4 color;
     half4 albedoAlpha = SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
     color.rgb = albedoAlpha.rgb * _OutlineColor.rgb;
     color.a = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);

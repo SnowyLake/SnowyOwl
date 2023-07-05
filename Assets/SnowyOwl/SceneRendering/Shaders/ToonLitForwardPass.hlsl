@@ -166,16 +166,17 @@ half4 ToonLitPassFragment(Varyings input) : SV_Target
     UNITY_SETUP_INSTANCE_ID(input);
 
     // half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, input.uv.xy);
-    // return half4 (ilm.bbb, 1);
+    // return half4 (ilm.ggg, 1);
 
     ToonSurfaceData toonSurfaceData;
     InitializeToonLitSurfaceData(input.uv.xy, toonSurfaceData);
+    //return half4 (toonSurfaceData.shadowThreshold, toonSurfaceData.shadowThreshold, toonSurfaceData.shadowThreshold, 1);
     
     InputData inputData;
     InitializeInputData(input, toonSurfaceData.normalTS, inputData);
     SETUP_DEBUG_TEXTURE_DATA(inputData, input.uv, _BaseMap);
 
-    half4 color = OwlToonShadingFragment(inputData, toonSurfaceData);
+    half4 color = SnowyOwl_ToonShading(inputData, toonSurfaceData);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(color.a, _Surface);
