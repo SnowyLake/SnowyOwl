@@ -52,19 +52,22 @@ namespace Snowy.Owl
         None = -1,      // If Camera is not a GameCamera
 
         MainCamera,     // Regular Base Camera, Scene Rendering
-        RTCamera,       // Special Base Camera, RenderTarget is a Custom RT
+        RTCamera,       // Special Base Camera, separate from the CameraStack, RenderTarget is a Custom RT
         OverlayCamera,  // Regular Overlay Camera, such as Character close-up Camera
-        UICamera,       // Special Overlay Camera, UI Rendering
+        UICamera,       // Special Overlay Camera, UI Rendering, it should be at the end of the CameraStack
 
         Count
     }
     public static class RendererFeatureUtils
     {
-        public static bool CheckGameCameraType(Camera camera, GameCameraType targetType)
+        public static bool CheckGameCameraType(in CameraData cameraData, GameCameraType targetType, bool ifNonGameCamera = true)
         {
-            if (camera.cameraType != CameraType.Game)
+            var camera = cameraData.camera;
+
+            // if camera is not a GameCamera
+            if (!UniversalRenderPipeline.IsGameCamera(camera))
             {
-                return false;
+                return ifNonGameCamera;
             }
 
             return camera.CompareTag(targetType.ToString());
