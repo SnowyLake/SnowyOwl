@@ -435,7 +435,7 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        virtual internal RTHandle GetCameraColorFrontBuffer(CommandBuffer cmd)
+        virtual public RTHandle GetCameraColorFrontBuffer(CommandBuffer cmd)
         {
             return null;
         }
@@ -447,7 +447,7 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        virtual internal RTHandle GetCameraColorBackBuffer(CommandBuffer cmd)
+        virtual public RTHandle GetCameraColorBackBuffer(CommandBuffer cmd)
         {
             return null;
         }

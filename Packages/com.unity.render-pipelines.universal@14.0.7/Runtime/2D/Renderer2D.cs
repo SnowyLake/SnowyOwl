@@ -337,7 +337,7 @@ namespace UnityEngine.Rendering.Universal
             m_LightCullResult.SetupCulling(ref cullingParameters, cameraData.camera);
         }
 
-        internal override RTHandle GetCameraColorBackBuffer(CommandBuffer cmd)
+        public override RTHandle GetCameraColorBackBuffer(CommandBuffer cmd)
         {
             return m_ColorTextureHandle;;
         }

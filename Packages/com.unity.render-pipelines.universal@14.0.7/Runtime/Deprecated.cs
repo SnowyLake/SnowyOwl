@@ -63,7 +63,7 @@ namespace UnityEngine.Rendering.Universal
         }
 
         /// <inheritdoc/>
-        internal override RTHandle GetCameraColorFrontBuffer(CommandBuffer cmd)
+        public override RTHandle GetCameraColorFrontBuffer(CommandBuffer cmd)
         {
             throw new NotImplementedException();
         }
