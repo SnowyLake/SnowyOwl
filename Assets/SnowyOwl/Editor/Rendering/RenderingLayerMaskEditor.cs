@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-namespace Snowy.Owl
+namespace SnowyOwl.Rendering
 {
     [CustomPropertyDrawer(typeof(RenderingLayerMask))]
     public class RenderingLayerMaskEditor : PropertyDrawer

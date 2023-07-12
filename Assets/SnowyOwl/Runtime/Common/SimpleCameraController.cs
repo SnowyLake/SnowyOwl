@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 using UnityEngine;
 
-namespace UnityTemplateProjects
+namespace SnowyOwl.External
 {
     public class SimpleCameraController : MonoBehaviour
     {

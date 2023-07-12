@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace Snowy.Owl.SceneRendering
+namespace SnowyOwl.Rendering
 {
     public class OutlineRendererFeature : ScriptableRendererFeature
     {
