@@ -58,8 +58,6 @@ namespace SnowyOwl.Rendering
             RTCamera,       // Special Base Camera, separate from the CameraStack, RenderTarget is a Custom RT
             OverlayCamera,  // Regular Overlay Camera, such as Character close-up Camera
             UICamera,       // Special Overlay Camera, UI Rendering, it should be at the end of the CameraStack
-
-            Count
         }
 
         private const string k_MainCamera = "MainCamera";
@@ -87,6 +85,21 @@ namespace SnowyOwl.Rendering
             }
 
             return cameraType == FetchGameCameraType(cameraData);
+        }
+        public static bool CheckGameCameraTypes(in CameraData cameraData, List<GameCameraDefines.Type> cameraTypes, bool ifNonGameCamera = true)
+        {
+            // if camera is not a GameCamera
+            if (!UniversalRenderPipeline.IsGameCamera(cameraData.camera))
+            {
+                return ifNonGameCamera;
+            }
+
+            foreach(var cameraType in cameraTypes)
+            {
+                if(cameraType == FetchGameCameraType(cameraData))
+                    return true;
+            }
+            return false;
         }
     }
 }

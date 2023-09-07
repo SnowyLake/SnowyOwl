@@ -24,6 +24,12 @@ namespace UnityEngine.Rendering.Universal
         /// Note that if you use this tonemapper all the grading operations will be done in the ACES color spaces for optimal precision and results.
         /// </summary>
         ACES, // ACES Filmic reference tonemapper (custom approximation)
+
+        /// <summary>
+        /// SnowyOwl using Gran Turismo Tonemapping, because it's better for Toon Shading.
+        /// Reference: https://github.com/yaoling1997/GT-ToneMapping
+        /// </summary>
+        GT, // GT Tonemapping
     }
 
     /// <summary>
@@ -123,6 +129,13 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         [Tooltip("The maximum brightness of the screen (in nits). This value is defined by the preset when using ACES Tonemap.")]
         public ClampedFloatParameter maxNits = new ClampedFloatParameter(1000.0f, 0.0f, 5000.0f);
+
+        // Params for GT Tonemapping
+        //public ClampedFloatParameter maxBrightness = new ClampedFloatParameter(11.0f, 1.0f, 5.0f);
+        //public ClampedFloatParameter contrast = new ClampedFloatParameter(1.0f, 0.0f, 5.0f);
+        //public ClampedFloatParameter linearSectionStart = new ClampedFloatParameter(11.0f, 1.0f, 5.0f);
+        //public ClampedFloatParameter linearSectionLength = new ClampedFloatParameter(11.0f, 1.0f, 5.0f);
+        //public ClampedFloatParameter blackTightness = new ClampedFloatParameter(11.0f, 1.0f, 5.0f);
 
         /// <inheritdoc/>
         public bool IsActive() => mode.value != TonemappingMode.None;

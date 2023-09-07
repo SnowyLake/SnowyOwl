@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81e345a9a4e7b054d9dfab94ba158ed5, type: 3}
   m_Name: CustomFullScreenPassRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   passMaterial: {fileID: 2100000, guid: 78a08787ca30045abb69f6f7dd878e09, type: 2}
   injectionPoint: 600
   requirements: 4
   passIndex: 0
+  cameraTypes: 00000000
 --- !u!114 &-4114157645508556651
 MonoBehaviour:
   m_ObjectHideFlags: 0

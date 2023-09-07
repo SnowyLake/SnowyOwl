@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -160,21 +160,25 @@ namespace UnityEngine.Rendering.Universal.Internal
             {
                 using var _ = new ProfilingScope(null, m_ProfilingSamplerFPSetup);
 
+                // 确保当前Jobs没有在执行
                 if (!m_CullingHandle.IsCompleted)
                 {
                     throw new InvalidOperationException("Forward+ jobs have not completed yet.");
                 }
 
+                // 检测当前buffer尺寸是否正确, 若不正确则释放并重新申请内存
                 if (m_TileMasks.Length != UniversalRenderPipeline.maxTileWords)
                 {
                     m_ZBins.Dispose();
                     m_ZBinsBuffer.Dispose();
                     m_TileMasks.Dispose();
                     m_TileMasksBuffer.Dispose();
+                    // 根据URP规定尺寸分配buffer, 尺寸大小由当前图形API决定
                     CreateForwardPlusBuffers();
                 }
                 else
                 {
+                    // 若buffer尺寸正确, 则clear上一帧数据
                     unsafe
                     {
                         UnsafeUtility.MemClear(m_ZBins.GetUnsafePtr(), m_ZBins.Length * sizeof(uint));
@@ -192,6 +196,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 var viewCount = 1;
 #endif
 
+                // 从当前camera的全部可见光源中减去directional light, 因为它们不需要参与cluster计算
                 m_LightCount = renderingData.lightData.visibleLights.Length;
                 var lightOffset = 0;
                 while (lightOffset < m_LightCount && renderingData.lightData.visibleLights[lightOffset].lightType == LightType.Directional)
@@ -203,12 +208,15 @@ namespace UnityEngine.Rendering.Universal.Internal
                 m_DirectionalLightCount = lightOffset;
                 if (renderingData.lightData.mainLightIndex != -1 && m_DirectionalLightCount != 0) m_DirectionalLightCount -= 1;
 
+                // 获取剩余的punctual light与全部的reflectionProbe数量
                 var visibleLights = renderingData.lightData.visibleLights.GetSubArray(lightOffset, m_LightCount);
                 var reflectionProbes = renderingData.cullResults.visibleReflectionProbes;
                 var reflectionProbeCount = math.min(reflectionProbes.Length, UniversalRenderPipeline.maxVisibleReflectionProbes);
-                var itemsPerTile = visibleLights.Length + reflectionProbeCount;
+                var itemsPerTile = visibleLights.Length + reflectionProbeCount; // 移动端该值最高为64(32 PunctualLights + 32 ReflectionProbes)
                 m_WordsPerTile = (itemsPerTile + 31) / 32;
 
+                // 计算Tile尺寸与数量
+                // m_WordsPerTile数值越大(PunctualLight与ReflectionProbe越多), Tile数量越多, 尺寸越小
                 m_ActualTileWidth = 8 >> 1;
                 do
                 {
@@ -217,6 +225,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 }
                 while ((m_TileResolution.x * m_TileResolution.y * m_WordsPerTile * viewCount) > UniversalRenderPipeline.maxTileWords);
 
+                // 计算ZBin尺寸、偏移与数量
                 if (!camera.orthographic)
                 {
                     // Use to calculate binIndex = log2(z) * zBinScale + zBinOffset
@@ -254,6 +263,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                     reflectionProbes[j + 1] = probe;
                 }
 
+                // 调用Jobs计算每个light和每个probe的最大最小深度值
                 var minMaxZs = new NativeArray<float2>(itemsPerTile * viewCount, Allocator.TempJob);
 
                 var lightMinMaxZJob = new LightMinMaxZJob
@@ -273,6 +283,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 };
                 var reflectionProbeMinMaxZHandle = reflectionProbeMinMaxZJob.ScheduleParallel(reflectionProbeCount * viewCount, 32, lightMinMaxZHandle);
 
+                // 调用Jobs运算ZBinning数据
                 var zBinningBatchCount = (m_BinCount + ZBinningJob.batchSize - 1) / ZBinningJob.batchSize;
                 var zBinningJob = new ZBinningJob
                 {
@@ -290,6 +301,8 @@ namespace UnityEngine.Rendering.Universal.Internal
                 };
                 var zBinningHandle = zBinningJob.ScheduleParallel(zBinningBatchCount * viewCount, 1, reflectionProbeMinMaxZHandle);
 
+                // Join reflectionProbeMinMaxZJob分发的子线程, 确保此刻reflectionProbeMinMaxZJob一定要完成计算
+                // 因为zBinningJob依赖于reflectionProbeMinMaxZJob的完成, 所以zBinningJob从此开始计算
                 reflectionProbeMinMaxZHandle.Complete();
 
                 // We want to calculate `fovHalfHeight = tan(fov / 2)`
@@ -298,6 +311,8 @@ namespace UnityEngine.Rendering.Universal.Internal
                 // Each light needs 1 range for Y, and a range per row. Align to 128-bytes to avoid false sharing.
                 var rangesPerItem = AlignByteCount((1 + m_TileResolution.y) * UnsafeUtility.SizeOf<InclusiveRange>(), 128) / UnsafeUtility.SizeOf<InclusiveRange>();
                 var tileRanges = new NativeArray<InclusiveRange>(rangesPerItem * itemsPerTile * viewCount, Allocator.TempJob);
+
+                // 调用Jobs运算Tiling数据
                 var tilingJob = new TilingJob
                 {
                     lights = visibleLights,
@@ -329,6 +344,8 @@ namespace UnityEngine.Rendering.Universal.Internal
                 };
 
                 var tilingHandle = expansionJob.ScheduleParallel(m_TileResolution.y * viewCount, 1, tileRangeHandle);
+
+                // m_CullingHandle用于后续判断是否已完成全部Jobs运算
                 m_CullingHandle = JobHandle.CombineDependencies(
                     minMaxZs.Dispose(zBinningHandle),
                     tileRanges.Dispose(tilingHandle));

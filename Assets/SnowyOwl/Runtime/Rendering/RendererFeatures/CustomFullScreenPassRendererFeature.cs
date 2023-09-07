@@ -1,6 +1,10 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+
+//using Sirenix.OdinInspector;
 
 namespace SnowyOwl.Rendering
 {
@@ -48,6 +52,7 @@ namespace SnowyOwl.Rendering
         /// </summary>
         [HideInInspector]
         public int passIndex = 0;
+        public List<GameCameraDefines.Type> cameraTypes;
 
         private FullScreenRenderPass fullScreenPass;
         private bool requiresColor;
@@ -80,7 +85,7 @@ namespace SnowyOwl.Rendering
         {
             // TODO: Camera Fifter
             if (!renderingData.cameraData.postProcessEnabled || 
-                CustomRenderingUtils.CheckGameCameraType(renderingData.cameraData, GameCameraDefines.Type.UICamera, false))
+                !CustomRenderingUtils.CheckGameCameraTypes(renderingData.cameraData, cameraTypes, true))
             {
                 return;
             }

@@ -27,7 +27,7 @@ namespace SnowyOwl.Rendering.External
 
         private void OnGUI()
         {
-            GUI.Button(new Rect(100, 100, 300, 150), "Button 0");
+            //GUI.Button(new Rect(100, 100, 300, 150), "Button 0");
         }
     }
 
