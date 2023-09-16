@@ -1,6 +1,6 @@
 namespace UnityEngine.Rendering.Universal
 {
-    partial class UniversalRenderPipelineGlobalSettings : IShaderVariantSettings
+    public partial class UniversalRenderPipelineGlobalSettings : IShaderVariantSettings
     {
         [SerializeField]
         internal Rendering.ShaderVariantLogLevel m_ShaderVariantLogLevel = Rendering.ShaderVariantLogLevel.Disabled;

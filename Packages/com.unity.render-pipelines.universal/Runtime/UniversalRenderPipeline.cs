@@ -172,6 +172,8 @@ namespace UnityEngine.Rendering.Universal
         internal static bool cameraStackRequiresDepthForPostprocessing = false;
 
         internal static RenderGraph s_RenderGraph;
+        internal static RTHandleResourcePool s_RTHandlePool;
+
         private static bool useRenderGraph;
 
         // Reference to the asset associated with the pipeline.
@@ -202,7 +204,8 @@ namespace UnityEngine.Rendering.Universal
 
             // Initial state of the RTHandle system.
             // We initialize to screen width/height to avoid multiple realloc that can lead to inflated memory usage (as releasing of memory is delayed).
-            RTHandles.Initialize(Screen.width, Screen.height);
+            // Note: Use legacy DR control. Can be removed once URP integrates with core package DynamicResolutionHandler
+            RTHandles.Initialize(Screen.width, Screen.height, useLegacyDynamicResControl: true);
 
             GraphicsSettings.useScriptableRenderPipelineBatching = asset.useSRPBatcher;
 
@@ -235,6 +238,8 @@ namespace UnityEngine.Rendering.Universal
             s_RenderGraph = new RenderGraph("URPRenderGraph");
             useRenderGraph = false;
 
+            s_RTHandlePool = new RTHandleResourcePool();
+
             DebugManager.instance.RefreshEditor();
             m_DebugDisplaySettingsUI.RegisterDebug(UniversalRenderPipelineDebugDisplaySettings.Instance);
 
@@ -261,6 +266,8 @@ namespace UnityEngine.Rendering.Universal
             s_RenderGraph.Cleanup();
             s_RenderGraph = null;
 
+            s_RTHandlePool.Cleanup();
+            s_RTHandlePool = null;
 #if UNITY_EDITOR
             SceneViewDrawMode.ResetDrawMode();
 #endif
@@ -383,6 +390,7 @@ namespace UnityEngine.Rendering.Universal
             }
 
             s_RenderGraph.EndFrame();
+            s_RTHandlePool.PurgeUnusedResources(Time.frameCount);
 
 #if UNITY_2021_1_OR_NEWER
             using (new ProfilingScope(null, Profiling.Pipeline.endContextRendering))
@@ -507,7 +515,7 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="context">Render context used to record commands during execution.</param>
         /// <param name="camera">Camera to render.</param>
         /// <seealso cref="ScriptableRenderContext"/>
-        [Obsolete("RenderSingleCamera is obsolete, please use RenderPipeline.SubmiteRenderRequest with UniversalRenderer.SingleCameraRequest as RequestData type", false)]
+        [Obsolete("RenderSingleCamera is obsolete, please use RenderPipeline.SubmitRenderRequest with UniversalRenderer.SingleCameraRequest as RequestData type", false)]
         public static void RenderSingleCamera(ScriptableRenderContext context, Camera camera)
         {
             RenderSingleCameraInternal(context, camera);
@@ -602,14 +610,13 @@ namespace UnityEngine.Rendering.Universal
 
                 SetupPerCameraShaderConstants(cmd);
 
-#if UNITY_EDITOR
-                // Emit scene view UI
-                if (isSceneViewCamera)
-                    ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
-                else
-#endif
-                if (cameraData.camera.targetTexture != null && cameraData.cameraType != CameraType.Preview)
+                // Emit scene/game view UI. The main game camera UI is always rendered, so this needs to be handled only for different camera types
+                if (camera.cameraType == CameraType.Reflection || camera.cameraType == CameraType.Preview)
                     ScriptableRenderContext.EmitGeometryForCamera(camera);
+#if UNITY_EDITOR
+                 else if (isSceneViewCamera)
+                    ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
+#endif
 
                 // Update camera motion tracking (prev matrices) from cameraData.
                 // Called and updated only once, as the same camera can be rendered multiple times.
@@ -1005,7 +1012,7 @@ namespace UnityEngine.Rendering.Universal
             };
             SceneViewDrawMode.SetupDrawMode();
 #endif
-            
+
             SupportedRenderingFeatures.active.supportsHDR = pipelineAsset.supportsHDR;
         }
 
@@ -1031,7 +1038,7 @@ namespace UnityEngine.Rendering.Universal
 
             // Use XR's MSAA if camera is XR camera. XR MSAA needs special handle here because it is not per Camera.
             // Multiple cameras could render into the same XR display and they should share the same MSAA level.
-            if (cameraData.xrRendering && rendererSupportsMSAA)
+            if (cameraData.xrRendering && rendererSupportsMSAA && camera.targetTexture == null)
                 msaaSamples = (int)XRSystem.GetDisplayMSAASamples();
 
             bool needsAlphaChannel = Graphics.preserveFramebufferAlpha;
@@ -1268,6 +1275,7 @@ namespace UnityEngine.Rendering.Universal
         {
             using var profScope = new ProfilingScope(null, Profiling.Pipeline.initializeRenderingData);
 
+            var isForwardPlus = cameraData.renderer is UniversalRenderer { renderingModeActual: RenderingMode.ForwardPlus };
             var visibleLights = cullResults.visibleLights;
 
             int mainLightIndex = GetMainLightIndex(settings, visibleLights);
@@ -1279,22 +1287,26 @@ namespace UnityEngine.Rendering.Universal
                 mainLightCastShadows = (mainLightIndex != -1 && visibleLights[mainLightIndex].light != null &&
                     visibleLights[mainLightIndex].light.shadows != LightShadows.None);
 
-                // If additional lights are shaded per-vertex they cannot cast shadows
-                if (settings.additionalLightsRenderingMode == LightRenderingMode.PerPixel)
+                // If Additional Light Shadows are enabled in the URP Asset
+                if (settings.supportsAdditionalLightShadows)
                 {
-                    for (int i = 0; i < visibleLights.Length; ++i)
+                    // If additional lights are shaded per-vertex they cannot cast shadows
+                    if (settings.additionalLightsRenderingMode == LightRenderingMode.PerPixel || isForwardPlus)
                     {
-                        if (i == mainLightIndex)
-                            continue;
-
-                        ref VisibleLight vl = ref visibleLights.UnsafeElementAtMutable(i);
-                        Light light = vl.light;
-
-                        // UniversalRP doesn't support additional directional light shadows yet
-                        if ((vl.lightType == LightType.Spot || vl.lightType == LightType.Point) && light != null && light.shadows != LightShadows.None)
+                        for (int i = 0; i < visibleLights.Length; ++i)
                         {
-                            additionalLightsCastShadows = true;
-                            break;
+                            if (i == mainLightIndex)
+                                continue;
+
+                            ref VisibleLight vl = ref visibleLights.UnsafeElementAtMutable(i);
+                            Light light = vl.light;
+
+                            // UniversalRP doesn't support additional directional light shadows yet
+                            if ((vl.lightType == LightType.Spot || vl.lightType == LightType.Point) && light != null && light.shadows != LightShadows.None)
+                            {
+                                additionalLightsCastShadows = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1303,10 +1315,10 @@ namespace UnityEngine.Rendering.Universal
             renderingData.cullResults = cullResults;
             renderingData.cameraData = cameraData;
             InitializeLightData(settings, visibleLights, mainLightIndex, out renderingData.lightData);
-            InitializeShadowData(settings, visibleLights, mainLightCastShadows, additionalLightsCastShadows && !renderingData.lightData.shadeAdditionalLightsPerVertex, out renderingData.shadowData);
+            InitializeShadowData(settings, visibleLights, mainLightCastShadows, additionalLightsCastShadows && !renderingData.lightData.shadeAdditionalLightsPerVertex, isForwardPlus, out renderingData.shadowData);
             InitializePostProcessingData(settings, out renderingData.postProcessingData);
             renderingData.supportsDynamicBatching = settings.supportsDynamicBatching;
-            var isForwardPlus = cameraData.renderer is UniversalRenderer { renderingModeActual: RenderingMode.ForwardPlus };
+
             renderingData.perObjectData = GetPerObjectLightFlags(renderingData.lightData.additionalLightsCount, isForwardPlus);
             renderingData.postProcessingEnabled = anyPostProcessingEnabled;
             renderingData.commandBuffer = cmd;
@@ -1314,7 +1326,7 @@ namespace UnityEngine.Rendering.Universal
             CheckAndApplyDebugSettings(ref renderingData);
         }
 
-        static void InitializeShadowData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, bool mainLightCastShadows, bool additionalLightsCastShadows, out ShadowData shadowData)
+        static void InitializeShadowData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, bool mainLightCastShadows, bool additionalLightsCastShadows, bool isForwardPlus, out ShadowData shadowData)
         {
             using var profScope = new ProfilingScope(null, Profiling.Pipeline.initializeShadowData);
 
@@ -1353,7 +1365,8 @@ namespace UnityEngine.Rendering.Universal
 
             shadowData.bias = m_ShadowBiasData;
             shadowData.resolution = m_ShadowResolutionData;
-            shadowData.supportsMainLightShadows = SystemInfo.supportsShadows && settings.supportsMainLightShadows && mainLightCastShadows;
+            shadowData.mainLightShadowsEnabled = settings.supportsMainLightShadows && settings.mainLightRenderingMode == LightRenderingMode.PerPixel;
+            shadowData.supportsMainLightShadows = SystemInfo.supportsShadows && shadowData.mainLightShadowsEnabled && mainLightCastShadows;
 
             // We no longer use screen space shadows in URP.
             // This change allows us to have particles & transparent objects receive shadows.
@@ -1387,7 +1400,8 @@ namespace UnityEngine.Rendering.Universal
 
             shadowData.mainLightShadowCascadeBorder = settings.cascadeBorder;
 
-            shadowData.supportsAdditionalLightShadows = SystemInfo.supportsShadows && settings.supportsAdditionalLightShadows && additionalLightsCastShadows;
+            shadowData.additionalLightShadowsEnabled = settings.supportsAdditionalLightShadows && (settings.additionalLightsRenderingMode == LightRenderingMode.PerPixel || isForwardPlus);
+            shadowData.supportsAdditionalLightShadows = SystemInfo.supportsShadows && shadowData.additionalLightShadowsEnabled && additionalLightsCastShadows;
             shadowData.additionalLightsShadowmapWidth = shadowData.additionalLightsShadowmapHeight = settings.additionalLightsShadowmapResolution;
             shadowData.supportsSoftShadows = settings.supportsSoftShadows && (shadowData.supportsMainLightShadows || shadowData.supportsAdditionalLightShadows);
             shadowData.shadowmapDepthBufferBits = 16;
@@ -1408,6 +1422,7 @@ namespace UnityEngine.Rendering.Universal
 
             postProcessingData.lutSize = settings.colorGradingLutSize;
             postProcessingData.useFastSRGBLinearConversion = settings.useFastSRGBLinearConversion;
+            postProcessingData.supportDataDrivenLensFlare = settings.supportDataDrivenLensFlare;
         }
 
         static void InitializeLightData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, int mainLightIndex, out LightData lightData)
