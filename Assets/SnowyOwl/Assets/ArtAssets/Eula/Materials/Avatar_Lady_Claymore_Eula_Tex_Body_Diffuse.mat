@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1377945009001025523
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Avatar_Lady_Claymore_Eula_Tex_Body_Diffuse
+  m_Shader: {fileID: 4800000, guid: 0cd2c2ec9d616f242bcda2a563b3ccf4, type: 3}
+  m_Parent: {fileID: 2100000, guid: 2be9747c800a6c74eb95e6aa9d4840d2, type: 2}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ENABLE_CUSTOM_TEX_CHANNEL
+  - _HIGHQUALITY_SELF_SHADOWS_ON
+  - _ILM_EMISSION_CHANNEL_A
+  - _ILM_SHADOWTHRESHOLD_CHANNEL_G
+  - _ILM_SMOOTHNESS_CHANNEL_R
+  - _MASK_BRDF_CHANNEL_R
+  - _MASK_MATCAP_CHANNEL_B
+  - _MASK_RIM_CHANNEL_G
+  - _MASK_UNUSED_CHANNEL_A
+  - _MATCAP_OFF
+  - _OUTLINE_ON
+  - _RIM_OFF
+  - _SHADOWMAP_NONE
+  m_InvalidKeywords:
+  - _
+  - _ILM_SPACULARSCALE_CHANNEL_B
+  - _MATCAPX_OFF
+  - _RIM1_OFF
+  - _RIM2_OFF
+  - _RIM3_OFF
+  - _RIM4_OFF
+  - _SHADOWMAP_OFF
+  - _ZWRITE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: cb703a09183f8e54ea9e5be7b05a7e12, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ILMMap:
+        m_Texture: {fileID: 2800000, guid: 268e084cf27e93543bd31aa1744a1869, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: cb703a09183f8e54ea9e5be7b05a7e12, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _CustomSpecularColorWeight: 0
+    - _DisableReceiveShadows: 1
+    - _EnableOutLine: 1
+    - _Glossiness: 0.34641016
+    - _ILM_ShadowThreshold: 1
+    - _ILM_SpacularScale: 2
+    - _Outline: 1
+    - _OutlineWidth: 0.089
+    - _ShadowThreshold: 1
+    - _Smoothness: 8
+    - _SpacularScale: 1
+    m_Colors:
+    - _ShadowColor: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
+    - _ShadowThresholdChannel: {r: 0, g: 1, b: 0, a: 0}
+    - _SmoothnessChannel: {r: 0, g: 0, b: 1, a: 0}
+    - _SpacularChannel: {r: 1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
