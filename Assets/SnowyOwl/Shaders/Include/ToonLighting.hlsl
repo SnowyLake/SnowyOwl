@@ -3,6 +3,7 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+// TODO: SSS
 CustomLightData CreateCustomLightData(Light light, InputData inputData)
 {
     CustomLightData lightData = (CustomLightData)0;

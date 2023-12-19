@@ -7,7 +7,7 @@
 
 ## Feature/Todo List
 - [ ] **Shading Library**
-  - [ ] Toon
+  - [ ] ToonShading
   - [ ] Other Features that URP dont have
 - [ ] **Terrain System**
   - [ ] Rendering
@@ -16,18 +16,14 @@
     - [ ] Runtime Virtual Texture
   - [ ] GPU Driven Terrain/Grass
     - [ ] Culling by Hi-Z(Hierarchical Z-Buffer Visibility)
-    - [ ] Culling by PVS(Potentially Visible Sets)
   - [ ] HLOD(Hierarchical Level of Detail)
 - [ ] **SkyAtmosphere**
   - [ ] Physically Based Sky
   - [ ] Stylized Sky
   - [ ] Time Of Day
 - [ ] **Global Illumination**
-  - [ ] DDGI(Outdoor)
-    - [ ] Irradiance Volume(Near, 256m * 256m * 256m)
-    - [ ] Low Precision Lightmap(Far, Baked by Irradiance Volume)
-  - [ ] PRTGI(Indoor)
-  - [ ] SSGI(Extra)
+  - [ ] PRTGI(Outdoor)
+  - [ ] SSGI(Indoor/Extra)
   - [ ] HBAO / GTAO
 - [ ] **PCG Pipeline**
 - [ ] **There are also some features that require intrusive modify URP but so cool**

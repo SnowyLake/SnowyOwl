@@ -1,9 +1,8 @@
-Shader "SnowyOwl/SceneRendering/ToonLit"
+Shader "SnowyOwl/ToonLit"
 {
     Properties
     {
         _PreMaterialSetting("# Pre Material Setting", float) = 0
-            [Toggle(_ENABLE_CUSTOM_TEX_CHANNEL)] _EnbaleCustomTextureChannel("Enbale Custom Texture Channel", Float) = 1.0
             [Toggle(_USE_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
 
         _ToonSurfaceSetting("# Toon Surface", float) = 0
@@ -11,14 +10,8 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
                 [MainTexture] _BaseMap("Base Map", 2D) = "white" { }
             
             _ToonSpecularSetting("## Toon Specular Setting", float) = 0
+                _ILMChannnelNOTE("!NOTE Channnel: R - Smoothness,  G - SpacularScale,  B - ShadowThreshold,  A - Emission", float) = 0
                 _ILMMap("ILM Map &", 2D) = "white" { }
-                _ILMDefaultChannnel("!NOTE Default Channnel: R - Smoothness,  G - SpacularScale,  B - ShadowThreshold,  A - Emission", float) = 0
-                    _ILMCustomChannnel1("--!DRAWER MultiProperty _ILM_Smoothness _ILM_SpacularScale [_ENABLE_CUSTOM_TEX_CHANNEL]", float) = 0.0
-                        [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _ILM_Smoothness("Smoothness Channel", float) = 0.0
-                        [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _ILM_SpacularScale("SpacularScale Channel", float) = 1.0
-                    _ILMCustomChannnel2("--!DRAWER MultiProperty _ILM_ShadowThreshold _ILM_Emission [_ENABLE_CUSTOM_TEX_CHANNEL]", float) = 0.0
-                        [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _ILM_ShadowThreshold("ShadowThreshold Channel", float) = 2.0
-                        [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _ILM_Emission("Emission Channel", float) = 3.0
 
                 _Smoothness("Smoothness", Range(1,  1024)) = 64                       
                 _SpacularScale("SpacularScale", Range(0.0, 2.0)) = 1.0
@@ -55,20 +48,15 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
             [Toggle(_OUTLINE_INNER_ON)] _EnableInnerOutLine("Enable Inner OutLine [_OUTLINE_ON]", Float) = 0.0
 
         _MaskSetting ("# Mask", float) = 0
-            [Toggle(_MASKMAP_ON)] _UseMaskMap("Use Mask Map", Float) = 0.0
+            [Toggle(_MASKMAP_ON)] _UseMaskMap("Use Mask Map",Float) = 0.0
+            _MaskChannnelNOTE("!NOTE Channnel: R - BRDFMask,  G - RimLightMask,  B - MatcapMask,  A - Unused [_MASKMAP_ON]", float) = 0
             _MaskMap("Mask Map & [_MASKMAP_ON]", 2D) = "white" { }
-            _ILMDefaultChannnel("!NOTE Default Channnel: R - BRDFMask,  G - RimLightMask,  B - MatcapMask,  A - Unused [_MASKMAP_ON]", float) = 0
-                _MaskCustomChannnel1("--!DRAWER MultiProperty _Mask_BRDF _Mask_RIM [_ENABLE_CUSTOM_TEX_CHANNEL && _MASKMAP_ON]", float) = 0.0
-                    [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _Mask_BRDF("BRDF Mask Channel", float) = 0.0
-                    [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _Mask_RIM("RimLight Mask Channel", float) = 1.0
-                _MaskCustomChannnel2("--!DRAWER MultiProperty _Mask_MATCAP _Mask_Unused [_ENABLE_CUSTOM_TEX_CHANNEL && _MASKMAP_ON]", float) = 0.0
-                    [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _Mask_MATCAP("Matcap Mask Channel", float) = 2.0
-                    [KeywordEnum(Channel R, Channel G, Channel B, Channel A)] _Mask_Unused("Unused Mask Channel", float) = 3.0
+            
 
         _BRDFSetting ("# BRDF", float) = 0
             [Toggle(_BRDFMAP_ON)] _UseBRDFMap("Use BRDF Map", Float) = 0.0
+            _BRDFChannnelNOTE("!NOTE Channnel: R - Metallic,  G - Smoothness,  B - Occlusion,  A - Emission [_BRDFMAP_ON]", float) = 0
             _BRDFMap("BRDF Map & [_BRDFMAP_ON]", 2D) = "white" { }
-            _BRDFDefaultChannnel("!NOTE Default Channnel: R - Metallic,  G - Smoothness,  B - Occlusion,  A - Emission [_BRDFMAP_ON]", float) = 0
             _BRDFScale("BRDF Scale (Metallic, Smoothness, Occlusion, Emission) & [_BRDFMAP_ON]", Vector) = (0, 0.5, 1.0, 1.0)
 
         _RimLightSetting("# RimLight", float) = 0
@@ -107,7 +95,13 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "ToonLit" "IgnoreProjector" = "True"}
+        Tags
+        {
+            "RenderType" = "Opaque"
+            "RenderPipeline" = "UniversalPipeline"
+            "UniversalMaterialType" = "ToonLit"
+            "IgnoreProjector" = "True"
+        }
         LOD 300
 
         // ------------------------------------------------------------------
@@ -132,7 +126,6 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
             // SnowyOwl Common Keywords
             // #pragma multi_compile _ _ALPHATEST_OFF
             #pragma shader_feature_local _USE_DEBUG_FRAGMENT
-            #pragma shader_feature_local _ENABLE_CUSTOM_TEX_CHANNEL
 
             // -------------------------------------
             // SnowyOwl Toon Material Keywords
@@ -145,20 +138,6 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
             #pragma shader_feature_local _OUTLINE_ON
             #pragma shader_feature_local _OUTLINE_INNER_ON
 
-            //----------------------------------------------------------------
-            // Custom Texture Channel, used in TextureChannelUtils.hlsl
-            //----------------------------------------------------------------
-            // ILM Map: Smoothness SpecularScale ShadowThresHold Emission
-            #pragma shader_feature_local _ILM_SMOOTHNESS_CHANNEL_R _ILM_SMOOTHNESS_CHANNEL_G _ILM_SMOOTHNESS_CHANNEL_B _ILM_SMOOTHNESS_CHANNEL_A
-            #pragma shader_feature_local _ILM_SPECULARSCALE_CHANNEL_R _ILM_SPECULARSCALE_CHANNEL_G _ILM_SPECULARSCALE_CHANNEL_B _ILM_SPECULARSCALE_CHANNEL_A
-            #pragma shader_feature_local _ILM_SHADOWTHRESHOLD_CHANNEL_R _ILM_SHADOWTHRESHOLD_CHANNEL_G _ILM_SHADOWTHRESHOLD_CHANNEL_B _ILM_SHADOWTHRESHOLD_CHANNEL_A
-            #pragma shader_feature_local _ILM_EMISSION_CHANNEL_R _ILM_EMISSION_CHANNEL_G _ILM_EMISSION_CHANNEL_B _ILM_EMISSION_CHANNEL_A
-            // Mask Map: BRDF RimLight Matcap Unused
-            #pragma shader_feature_local _MASK_BRDF_CHANNEL_R _MASK_BRDF_CHANNEL_G _MASK_BRDF_CHANNEL_B _MASK_BRDF_CHANNEL_A
-            #pragma shader_feature_local _MASK_RIM_CHANNEL_R _MASK_RIM_CHANNEL_G _MASK_RIM_CHANNEL_B _MASK_RIM_CHANNEL_A
-            #pragma shader_feature_local _MASK_MATCAP_CHANNEL_R _MASK_MATCAP_CHANNEL_G _MASK_MATCAP_CHANNEL_B _MASK_MATCAP_CHANNEL_A
-            #pragma shader_feature_local _MASK_UNUSED_CHANNEL_R _MASK_UNUSED_CHANNEL_G _MASK_UNUSED_CHANNEL_B _MASK_UNUSED_CHANNEL_A
-
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
@@ -166,10 +145,12 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
             #pragma shader_feature_local _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
+            
             //#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #if defined(_HIGHQUALITY_SELF_SHADOWS_ON)
                 #define _RECEIVE_SHADOWS_OFF
             #endif
+            
             #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature_local _ENVIRONMENTREFLECTIONS_OFF
 
@@ -197,7 +178,6 @@ Shader "SnowyOwl/SceneRendering/ToonLit"
             #pragma vertex ToonLitPassVertex
             #pragma fragment Frag
             
-            #include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitInput.hlsl"
             #include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitForwardPass.hlsl"
 
             half4 DebugFragment(Varyings input) : SV_Target

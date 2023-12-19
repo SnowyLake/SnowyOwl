@@ -20,14 +20,8 @@ namespace SnowyOwl.Rendering
     [Serializable]
     public class FilterSettings
     {
-        public LayerMask layerMask;
-        public RenderingLayerMask renderingLayerMask;
-
-        public FilterSettings()
-        {
-            layerMask = 1;
-            renderingLayerMask = 1;
-        }
+        public LayerMask layerMask = 1;
+        public RenderingLayerMask renderingLayerMask = 1;
     }
 
     [Serializable]

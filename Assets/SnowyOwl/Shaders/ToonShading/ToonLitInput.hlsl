@@ -5,7 +5,6 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
-#include "Assets/SnowyOwl/ShaderLibrary/TextureChannelUtils.hlsl"
 #include "Assets/SnowyOwl/Shaders/ToonShading/ToonData.hlsl"
 
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
@@ -53,14 +52,14 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
 
     half4 ilm = SAMPLE_TEXTURE2D(_ILMMap, sampler_ILMMap, uv);
     
-    outToonSurfaceData.smoothness = GetILMSmoothness(ilm, CHANNEL_R) * _Smoothness;
-    outToonSurfaceData.specularScale = GetILMSpecularScale(ilm, CHANNEL_B) * _SpacularScale;
+    outToonSurfaceData.smoothness = ilm.r * _Smoothness;
+    outToonSurfaceData.specularScale = ilm.b * _SpacularScale;
     outToonSurfaceData.customSpecularColor = _CustomSpecularColor.rgb;
     outToonSurfaceData.customSpecularColorWeight = _CustomSpecularColorWeight;
 
     outToonSurfaceData.giScale = _GIScale;
 #if defined(_EMISSION) && !defined(_OUTLINE_INNER_ON)
-    half emission = GetILMEmission(ilm, CHANNEL_A) * _EmissionColor;
+    half emission = ilm.a * _EmissionColor;
     outToonSurfaceData.emissionColor = emission * _EmissionColor.rgb;
 #elif defined(_OUTLINE_ON) && defined(_OUTLINE_INNER_ON)
     outToonSurfaceData.albedo *= half3(ilm.a, ilm.a, ilm.a);
@@ -69,7 +68,7 @@ inline void InitializeToonLitSurfaceData(float2 uv, out ToonSurfaceData outToonS
     outToonSurfaceData.emissionColor = half3(0, 0, 0);
 #endif
 
-    outToonSurfaceData.shadowThreshold = saturate(GetILMShadowThreshold(ilm, CHANNEL_G) * (_ShadowThreshold + 0.0001));
+    outToonSurfaceData.shadowThreshold = saturate(ilm.g * (_ShadowThreshold + 0.0001));
 #if defined(_SHADOWMAP_SSS) || defined(_SHADOWMAP_SSS_RAMP)
     outToonSurfaceData.shadowColor = SAMPLE_TEXTURE2D(_ShadowSSSMap, sampler_ShadowSSSMap, uv).rgb * _ShadowColor;
 #elif defined(_SHADOWMAP_MULTICOLOR_RAMP)

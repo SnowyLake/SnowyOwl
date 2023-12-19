@@ -1,7 +1,9 @@
 #ifndef SNOWYOWL_OUTLINE_PASS_INCLUDED
 #define SNOWYOWL_OUTLINE_PASS_INCLUDED
 
+#include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitInput.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
 
 // TODO: control outline width by vertex color
 struct Attributes

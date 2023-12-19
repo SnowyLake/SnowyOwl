@@ -1,8 +1,8 @@
 #ifndef SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 #define SNOWYOWL_TOONLIT_FORWARD_PASS_INCLUDED
 
-#include "Assets/SnowyOwl/ShaderLibrary/TextureChannelUtils.hlsl"
-#include "Assets/SnowyOwl/ShaderLibrary/ToonLighting.hlsl"
+#include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitInput.hlsl"
+#include "Assets/SnowyOwl/Shaders/Include/ToonLighting.hlsl"
 
 #if defined(_NORMALMAP)
 #define REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR

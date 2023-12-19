@@ -12,23 +12,23 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLE_CUSTOM_TEX_CHANNEL
   - _HIGHQUALITY_SELF_SHADOWS_ON
-  - _ILM_EMISSION_CHANNEL_A
-  - _ILM_SHADOWTHRESHOLD_CHANNEL_G
-  - _ILM_SMOOTHNESS_CHANNEL_R
-  - _MASK_BRDF_CHANNEL_R
-  - _MASK_MATCAP_CHANNEL_B
-  - _MASK_RIM_CHANNEL_G
-  - _MASK_UNUSED_CHANNEL_A
   - _MATCAP_OFF
   - _OUTLINE_INNER_ON
   - _OUTLINE_ON
   - _RIM_OFF
   - _SHADOWMAP_SSS
   m_InvalidKeywords:
+  - _ENABLE_CUSTOM_TEX_CHANNEL
+  - _ILM_EMISSION_CHANNEL_A
+  - _ILM_SHADOWTHRESHOLD_CHANNEL_G
+  - _ILM_SMOOTHNESS_CHANNEL_R
   - _ILM_SPACULARSCALE_CHANNEL_B
   - _INNER_OUTLINE_ON
+  - _MASK_BRDF_CHANNEL_R
+  - _MASK_MATCAP_CHANNEL_B
+  - _MASK_RIM_CHANNEL_G
+  - _MASK_UNUSED_CHANNEL_A
   - _SHADOWMAP_MULITCOLOR_RAMP
   - _ZWRITE_ON
   m_LightmapFlags: 4
@@ -195,6 +195,7 @@ Material:
     - _AlphaClip: 0
     - _BRDF: 0
     - _BRDFChannnel: 0
+    - _BRDFChannnelNOTE: 0
     - _BRDFDefaultChannnel: 0
     - _BRDFEmissionScale: 1
     - _BRDFEmissiveScale: 1
@@ -243,6 +244,7 @@ Material:
     - _Group_Shadow: 0
     - _Group_ToonShading: 0
     - _Group_ToonSurface: 0
+    - _ILMChannnelNOTE: 0
     - _ILMCustomChannnel: 0
     - _ILMCustomChannnel1: 0
     - _ILMCustomChannnel2: 0
@@ -254,8 +256,10 @@ Material:
     - _ILM_SpacularScale: 2
     - _IsTransparent: 0
     - _Mask: 1
+    - _MaskChannnelNOTE: 0
     - _MaskCustomChannnel1: 0
     - _MaskCustomChannnel2: 0
+    - _MaskDefaultChannnel: 0
     - _MaskSetting: 0
     - _Mask_BRDF: 0
     - _Mask_MATCAP: 2
