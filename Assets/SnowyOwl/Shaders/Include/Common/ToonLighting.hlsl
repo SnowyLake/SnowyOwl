@@ -3,6 +3,8 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+#include "ToonData.hlsl"
+
 // TODO: SSS
 CustomLightData CreateCustomLightData(Light light, InputData inputData)
 {

@@ -5,7 +5,7 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
-#include "Assets/SnowyOwl/Shaders/ToonShading/ToonData.hlsl"
+#include "../Include/Common/ToonData.hlsl"
 
 // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
 CBUFFER_START(UnityPerMaterial)

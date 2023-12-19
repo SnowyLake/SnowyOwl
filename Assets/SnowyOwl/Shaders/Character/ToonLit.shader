@@ -1,4 +1,4 @@
-Shader "SnowyOwl/ToonLit"
+Shader "SnowyOwl/Character/ToonLit"
 {
     Properties
     {
@@ -178,7 +178,7 @@ Shader "SnowyOwl/ToonLit"
             #pragma vertex ToonLitPassVertex
             #pragma fragment Frag
             
-            #include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitForwardPass.hlsl"
+            #include "../Include/Character/ToonLitForwardPass.hlsl"
 
             half4 DebugFragment(Varyings input) : SV_Target
             {
@@ -222,8 +222,8 @@ Shader "SnowyOwl/ToonLit"
             #pragma vertex OutlinePassVertex
             #pragma fragment OutlinePassFragment
 
-            #include "Assets/SnowyOwl/Shaders/ToonShading/ToonLitInput.hlsl"
-            #include "Assets/SnowyOwl/Shaders/ToonShading/OutlinePass.hlsl"
+            #include "../Include/Character/ToonLitInput.hlsl"
+            #include "../Include/Character/OutlinePass.hlsl"
 
             ENDHLSL
         }
