@@ -20,7 +20,7 @@ namespace SnowyOwl.Rendering
                 var newRenderingLayerMaskNames = new string[maskCount];
                 for (int i = 0; i < maskCount; ++i)
                 {
-                    newRenderingLayerMaskNames[i] = i < renderingLayerMaskNames.Length ? renderingLayerMaskNames[i] : $"Layer{i}_Unused";
+                    newRenderingLayerMaskNames[i] = i < renderingLayerMaskNames.Length ? renderingLayerMaskNames[i] : $"Unused Layer {i}";
                 }
                 renderingLayerMaskNames = newRenderingLayerMaskNames;
 

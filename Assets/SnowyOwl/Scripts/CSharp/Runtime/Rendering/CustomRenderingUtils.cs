@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -22,6 +22,7 @@ namespace SnowyOwl.Rendering
     {
         public LayerMask layerMask = 1;
         public RenderingLayerMask renderingLayerMask = 1;
+        public List<GameCameraDefine.Type> cameraTypes = new() { GameCameraDefine.Type.MainCamera };
     }
 
     [Serializable]
@@ -33,7 +34,6 @@ namespace SnowyOwl.Rendering
         {
             return mask.value;
         }
-
         public static implicit operator RenderingLayerMask(uint intVal)
         {
             RenderingLayerMask result = default;
@@ -42,7 +42,7 @@ namespace SnowyOwl.Rendering
         }
     }
 
-    public static class GameCameraDefines
+    public static class GameCameraDefine
     {
         public enum Type
         {
@@ -65,34 +65,37 @@ namespace SnowyOwl.Rendering
     // Core Utils Class
     public static class CustomRenderingUtils
     {
-        public static GameCameraDefines.Type FetchGameCameraType(in CameraData cameraData)
+        public static bool IsGameCamera(Camera camera)
         {
-            return (GameCameraDefines.Type)GameCameraDefines.Tags.IndexOf(cameraData.camera.tag);
+            return camera.cameraType == CameraType.Game;
+        }
+        public static bool IsSceneViewCamera(Camera camera)
+        {
+            return camera.cameraType == CameraType.SceneView;
+        }
+            
+        public static GameCameraDefine.Type FetchCameraType(Camera camera)
+        {
+            return (GameCameraDefine.Type)GameCameraDefine.Tags.IndexOf(camera.tag);
         }
 
-        public static bool CheckGameCameraType(in CameraData cameraData, GameCameraDefines.Type cameraType, bool ifNonGameCamera = true)
+        public static bool CheckCameraType(Camera camera, GameCameraDefine.Type cameraType, bool ifSceneViewCamera = true)
         {
-            // if camera is not a GameCamera
-            if (!UniversalRenderPipeline.IsGameCamera(cameraData.camera))
-            {
-                return ifNonGameCamera;
-            }
-
-            return cameraType == FetchGameCameraType(cameraData);
+            return (camera.enabled && IsGameCamera(camera) && FetchCameraType(camera) == cameraType) 
+                   || IsSceneViewCamera(camera) && ifSceneViewCamera;
         }
-        public static bool CheckGameCameraTypes(in CameraData cameraData, List<GameCameraDefines.Type> cameraTypes, bool ifNonGameCamera = true)
+        public static bool CheckCameraType(Camera camera, List<GameCameraDefine.Type> cameraTypes, bool ifSceneViewCamera = true)
         {
-            // if camera is not a GameCamera
-            if (!UniversalRenderPipeline.IsGameCamera(cameraData.camera))
+            if (IsSceneViewCamera(camera) && ifSceneViewCamera)
             {
-                return ifNonGameCamera;
+                return true;
             }
 
-            foreach(var cameraType in cameraTypes)
+            if (cameraTypes.Any(cameraType => FetchCameraType(camera) == cameraType))
             {
-                if(cameraType == FetchGameCameraType(cameraData))
-                    return true;
+                return camera.enabled && IsGameCamera(camera);
             }
+            
             return false;
         }
     }

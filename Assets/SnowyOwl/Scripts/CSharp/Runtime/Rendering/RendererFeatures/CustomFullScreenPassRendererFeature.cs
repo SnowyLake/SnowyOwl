@@ -52,7 +52,7 @@ namespace SnowyOwl.Rendering
         /// </summary>
         [HideInInspector]
         public int passIndex = 0;
-        public List<GameCameraDefines.Type> cameraTypes;
+        public List<GameCameraDefine.Type> cameraTypes;
 
         private FullScreenRenderPass fullScreenPass;
         private bool requiresColor;
@@ -85,7 +85,7 @@ namespace SnowyOwl.Rendering
         {
             // TODO: Camera Fifter
             if (!renderingData.cameraData.postProcessEnabled || 
-                !CustomRenderingUtils.CheckGameCameraTypes(renderingData.cameraData, cameraTypes, true))
+                !CustomRenderingUtils.CheckCameraType(renderingData.cameraData.camera, cameraTypes, true))
             {
                 return;
             }

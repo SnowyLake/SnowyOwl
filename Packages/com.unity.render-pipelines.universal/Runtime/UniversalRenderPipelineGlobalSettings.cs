@@ -229,7 +229,7 @@ namespace UnityEngine.Rendering.Universal
                 uint renderingLayer = (uint)(1 << i);
 
                 m_ValidRenderingLayers = i < m_RenderingLayerNames.Length ? (m_ValidRenderingLayers | renderingLayer) : (m_ValidRenderingLayers & ~renderingLayer);
-                m_PrefixedRenderingLayerNames[i] = i < m_RenderingLayerNames.Length ? m_RenderingLayerNames[i] : $"Layer{i}_Unused";
+                m_PrefixedRenderingLayerNames[i] = i < m_RenderingLayerNames.Length ? m_RenderingLayerNames[i] : $"Unused Layer {i}";
             }
 
             // Update decals

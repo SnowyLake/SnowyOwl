@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace SnowyOwl.Rendering
 {
-    public class OutlineRendererFeature : ScriptableRendererFeature
+    public class ToonOutlineRendererFeature : ScriptableRendererFeature
     {
         [System.Serializable]
         public class OutlinePassSettings : RenderPassSettings
@@ -20,20 +20,24 @@ namespace SnowyOwl.Rendering
             passEvent = RenderPassEvent.BeforeRenderingTransparents,
             passTags = new List<string> { "Outline" }
         };
-        private OutlinePass m_Pass;
+        private ToonOutlinePass m_Pass;
 
         /// <inheritdoc/>
         public override void Create()
         {
-            m_Pass = new OutlinePass(settings);
+            m_Pass = new ToonOutlinePass(settings);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
+            if (!CustomRenderingUtils.CheckCameraType(renderingData.cameraData.camera, settings.filterSettings.cameraTypes, true))
+            {
+                return;
+            }
             renderer.EnqueuePass(m_Pass);
         }
 
-        class OutlinePass : ScriptableRenderPass
+        class ToonOutlinePass : ScriptableRenderPass
         {
             private class PassData
             {
@@ -46,13 +50,13 @@ namespace SnowyOwl.Rendering
             }
             private PassData m_PassData;
 
-            public OutlinePass(OutlinePassSettings settings)
+            public ToonOutlinePass(OutlinePassSettings settings)
             {
                 this.renderPassEvent = settings.passEvent;
 
                 m_PassData = new PassData
                 {
-                    profilingSampler = new ProfilingSampler("OutlinePass"),
+                    profilingSampler = new ProfilingSampler("ToonOutlinePass"),
                     passTags = new List<ShaderTagId>(),
                     isOpaque = settings.isOpaque,
                 };

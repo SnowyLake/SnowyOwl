@@ -2,63 +2,58 @@ Shader "SnowyOwl/Character/ToonLit"
 {
     Properties
     {
-        _PreMaterialSetting("# Pre Material Setting", float) = 0
-            [Toggle(_USE_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
+        _MaterialCommonSetting("# Material Common Setting", float) = 0
+//            [Toggle(_USE_DEBUG_FRAGMENT)] _UseDebugFragment("Use Debug Fragment", Float) = 0.0
+
+            [Toggle] _ZWrite("ZWrite", Float) = 1.0
+            [Toggle(_SURFACE_TYPE_TRANSPARENT)] _IsTransparent("Is Transparent", Float) = 0.0
+            [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha Clip", Float) = 0.0
+                _Cutoff("Alpha Cutoff [_ALPHATEST_ON]", Range(0.0, 1.0)) = 0.5
+            [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("SrcBlend", Float) = 1.0
+            [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("DstBlend", Float) = 0.0
+            [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2.0
+            [Enum(RGBA, 15, RGB, 14)]_ColorMask("ColorMask Mode", Float) = 15 // 15 is RGBA (binary 1111)
+            [Toggle(_RECEIVE_SHADOWS_OFF)] _DisableReceiveShadows("Disable Receive Shadows", Float) = 0.0
+            [Toggle(_SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights("Disable Specular Highlights", Float) = 0.0
+            [Toggle(_ENVIRONMENTREFLECTIONS_OFF)] _DisableEnvironmentReflections("Disable Environment Reflections", Float) = 0.0
 
         _ToonSurfaceSetting("# Toon Surface", float) = 0
-                [HDR] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-                [MainTexture] _BaseMap("Base Map", 2D) = "white" { }
+            [HDR] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+            [MainTexture] _BaseMap("Base Map", 2D) = "white" { }
+            _DiffuseStepSmoothness("Diffuse Step Smoothness", Range(0.01, 1)) = 0.01
+            _DiffuseStepSmoothnessOffset("Diffuse Step Smoothness Offset", Range(0, 1)) = 0
             
-            _ToonSpecularSetting("## Toon Specular Setting", float) = 0
-                _ILMChannnelNOTE("!NOTE Channnel: R - Smoothness,  G - SpacularScale,  B - ShadowThreshold,  A - Emission", float) = 0
-                _ILMMap("ILM Map &", 2D) = "white" { }
-
-                _Smoothness("Smoothness", Range(1,  1024)) = 64                       
-                _SpacularScale("SpacularScale", Range(0.0, 2.0)) = 1.0
-                _CustomSpecularColor("Custom Specular Color", Color) = (1, 1, 1, 1)
-                _CustomSpecularColorWeight("Custom Specular Color Weight", Range(0.0, 1.0)) = 0.5
-                [Toggle(_SPECULARHIGHLIGHTS_OFF)] _DisableSpecularHighlights("Disable Specular Highlights", Float) = 0.0
-            
-            _ToonShadowSetting("## Toon Shadow Setting", float) = 0
-                _ShadowThreshold("ShadowThreshold", Range(0.0, 2.0)) = 1.0
-                _ShadowColor("Shadow Color", Color) = (1, 1, 1, 1)
-                [KeywordEnum(None, SSS, SSS Ramp, MultiColor Ramp)] _ShadowMap("ShadowMap Type", Float) = 0.0
-                    _ShadowSSSMap("-SSS Map & [_SHADOWMAP_SSS || _SHADOWMAP_SSS_RAMP]", 2D) = "white" { }
-                    _ShadowSSSRampMapGenerator("-!DRAWER Gradient _ShadowSSSRampMap [_SHADOWMAP_SSS_RAMP]", float) = 0
-                        _ShadowSSSRampMap("SSS RampMap [_SHADOWMAP_SSS_RAMP]", 2D) = "white" { }
-                    _ShadowSSSRampScale("-SSS Ramp Scale [_SHADOWMAP_SSS_RAMP]", Range(0.0, 1.0)) = 0.0
-                    _ShadowRampMap("Ramp Map & [_SHADOWMAP_MULTICOLOR_RAMP]", 2D) = "white" { }
-                [Toggle(_HIGHQUALITY_SELF_SHADOWS_ON)] _EnableHQSelfShadows("Enable HQ Self Shadows", Float) = 0.0
-
-            _GIAndEmissionSetting("## GI and Emission Setting", float) = 0
-                _GIScale("GI Scale", Range(0.0, 1.0)) = 0.5
-                [Toggle(_EMISSION)] _Emission("Enable Emission", Float) = 0.0
-                [HDR] _EmissionColor("Emission Color [_EMISSION]", Color) = (1, 1, 1, 1)
-                _EmissionScale("Emission Scale [_EMISSION]", Range(0.0, 1.0)) = 0.0
-
-            _NormalSetting ("## Normal Setting", float) = 0
-                [Toggle(_NORMALMAP)] _UseNormalMap("Use Normal Map", Float) = 0.0
-                _BumpMap("Normal Map && [_NORMALMAP]", 2D) = "bump" { }
-                _BumpScale("Normal Scale [_NORMALMAP]", range(0.0, 10.0)) = 1.0
+        _ToonShadingSetting("# Toon Shading", float) = 0
+            _ILMChannnelNOTE("!NOTE Channnel: R - SpacularScale,  G - Smoothness,  B - ShadowThreshold,  A - Emission", float) = 0
+            _ILMMap("ILM Map &", 2D) = "gary" { }
+            _SpecularColor("Specular Color", Color) = (1, 1, 1, 1)
+            _SpacularScale("Spacular Scale", Range(0.0, 2.0)) = 1.0
+            _Smoothness("Smoothness", Range(0.0,  2.0)) = 0.5
+            _EmissionColor("Emission Color", Color) = (1, 1, 1, 1)
+            _EmissionScale("Emission Scale", Range(0, 100)) = 0
+        
+        _ToonShadowSetting("# Toon Shadow", float) = 0
+            [KeywordEnum(None, SSS, SSS Ramp, MultiColor Ramp)] _ShadowMap("ShadowMap Type", Float) = 0.0
+                _ShadowSSSMap("SSS Map & [_SHADOWMAP_SSS || _SHADOWMAP_SSS_RAMP]", 2D) = "white" { }
+                _ShadowRampMap("Ramp Map & [_SHADOWMAP_SSS_RAMP || _SHADOWMAP_MULTICOLOR_RAMP]", 2D) = "white" { }
+            _ShadowColor("Shadow Color", Color) = (1, 1, 1, 1)
+            _ShadowScale("Shadow Scale", Range(0, 1)) = 1
+            [Toggle(_HQ_SELF_SHADOWS_ON)] _EnableHQSelfShadows("Enable HQ Self Shadows", Float) = 0.0
+    
+        _NormalSetting ("# Normal Setting", float) = 0
+            [Toggle(_NORMALMAP)] _EnableNormalMap("Enable Normal Map", Float) = 0.0
+            _BumpMap("Normal Map && [_NORMALMAP]", 2D) = "bump" { }
+            _BumpScale("Normal Scale [_NORMALMAP]", range(0.0, 10.0)) = 1.0
+        
+        _GISetting("# GI Setting", float) = 0
+            _GIScale("GI Scale", Range(0.0, 1.0)) = 0.5
 
         _OutlineSetting ("# Outline", float) = 0
-            [Toggle(_OUTLINE_ON)] _EnableOutLine("Enable OutLine", Float) = 0.0
-            _OutlineColor("Outline Color [_OUTLINE_ON]", Color) = (0, 0, 0, 1)
-            _OutlineWidth("Outline Width [_OUTLINE_ON]", range(0.0, 1.0)) = 0.2
-            [Toggle(_OUTLINE_INNER_ON)] _EnableInnerOutLine("Enable Inner OutLine [_OUTLINE_ON]", Float) = 0.0
-
-        _MaskSetting ("# Mask", float) = 0
-            [Toggle(_MASKMAP_ON)] _UseMaskMap("Use Mask Map",Float) = 0.0
-            _MaskChannnelNOTE("!NOTE Channnel: R - BRDFMask,  G - RimLightMask,  B - MatcapMask,  A - Unused [_MASKMAP_ON]", float) = 0
-            _MaskMap("Mask Map & [_MASKMAP_ON]", 2D) = "white" { }
-            
-
-        _BRDFSetting ("# BRDF", float) = 0
-            [Toggle(_BRDFMAP_ON)] _UseBRDFMap("Use BRDF Map", Float) = 0.0
-            _BRDFChannnelNOTE("!NOTE Channnel: R - Metallic,  G - Smoothness,  B - Occlusion,  A - Emission [_BRDFMAP_ON]", float) = 0
-            _BRDFMap("BRDF Map & [_BRDFMAP_ON]", 2D) = "white" { }
-            _BRDFScale("BRDF Scale (Metallic, Smoothness, Occlusion, Emission) & [_BRDFMAP_ON]", Vector) = (0, 0.5, 1.0, 1.0)
-
+            _OutlineColor("Outline Color", Color) = (0.1, 0.1, 0.1, 1)
+            _OutlineWidth("Outline Width", Range(0.001, 0.1)) = 0.005
+            [Toggle(_OUTLINE_SMOOTHEDNORMAL)] _EnableSmoothNormal("Enable Smooth Normal",Float) = 0
+            [Toggle(_OUTLINE_INNER_ON)] _EnableInnerOutLine("Enable Inner OutLine", Float) = 0
+        
         _RimLightSetting("# RimLight", float) = 0
             [KeywordEnum(OFF, Fresnel, DepthOffset)] _Rim("RimLight Mode", Float) = 0.0
             _RimColor("Rim Color [!_RIM_OFF]", Color) = (1, 1, 1, 1)
@@ -66,28 +61,16 @@ Shader "SnowyOwl/Character/ToonLit"
         _MatcapSetting ("# Matcap", float) = 0
             [KeywordEnum(OFF, Add, Mul)] _Matcap("Matcap Mode", Float) = 0.0
             _MatcapMap("Matcap Map & [!_MATCAP_OFF]", 2D) = "white" { }
-
-        _MaterialGeneralSetting ("# Material General", float) = 0
-            [Toggle(_ALPHATEST_ON)] _AlphaClip("Alpha Clip", Float) = 0.0
-            _Cutoff("Alpha Cutoff [_ALPHATEST_ON]", Range(0.0, 1.0)) = 0.5
-            [Toggle(_SURFACE_TYPE_TRANSPARENT)] _IsTransparent("Is Transparent", Float) = 0.0
-            [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("SrcBlend", Float) = 1.0
-            [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("DstBlend", Float) = 0.0
-            [Toggle] _ZWrite("ZWrite", Float) = 1.0
-            [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull Mode", Float) = 2.0
-            [Enum(RGBA, 15, RGB, 14)]_ColorMask("ColorMask Mode", Float) = 15 // 15 is RGBA (binary 1111)
-            _QueueOffset("Queue Offset", Float) = 0.0 // Editmode props
-
-
-        // SRP batching compatibility for Clear Coat (Not used in Lit)
-        [HideInInspector] _ClearCoatMask("_ClearCoatMask", Float) = 0.0
-        [HideInInspector] _ClearCoatSmoothness("_ClearCoatSmoothness", Float) = 0.0
-        // ObsoleteProperties
-        [HideInInspector] _MainTex("BaseMap", 2D) = "white" {}
-        [HideInInspector] _Color("Base Color", Color) = (1, 1, 1, 1)
-        [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
-        [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
-        [HideInInspector] _GlossyReflections("EnvironmentReflections", Float) = 0.0
+        
+        _MaskSetting ("# Mask", float) = 0
+            [Toggle(_MASKMAP_ON)] _UseMaskMap("Use Mask Map",Float) = 0.0
+            _MaskChannnelNOTE("!NOTE Channnel: R - BRDFMask,  G - RimLightMask,  B - MatcapMask,  A - Unused [_MASKMAP_ON]", float) = 0
+            _MaskMap("Mask Map & [_MASKMAP_ON]", 2D) = "white" { }
+        _BRDFSetting ("# BRDF", float) = 0
+            [Toggle(_BRDFMAP_ON)] _UseBRDFMap("Use BRDF Map", Float) = 0.0
+            _BRDFChannnelNOTE("!NOTE Channnel: R - Metallic,  G - Smoothness,  B - Occlusion,  A - Emission [_BRDFMAP_ON]", float) = 0
+            _BRDFMap("BRDF Map & [_BRDFMAP_ON]", 2D) = "white" { }
+            _BRDFScale("BRDF Scale (Metallic, Smoothness, Occlusion, Emission) & [_BRDFMAP_ON]", Vector) = (0, 0.5, 1.0, 1.0)
     }
 
     SubShader
@@ -110,7 +93,7 @@ Shader "SnowyOwl/Character/ToonLit"
         {
             // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
             // no LightMode tag are also rendered by Universal Render Pipeline
-            Name "ForwardToonLit"
+            Name "ToonLitForward"
             Tags{"LightMode" = "UniversalForward"}
 
             Cull[_Cull]
@@ -120,37 +103,26 @@ Shader "SnowyOwl/Character/ToonLit"
 
             HLSLPROGRAM
             #pragma target 4.5
-            //#pragma enable_d3d11_debug_symbols
-
-            // -------------------------------------
-            // SnowyOwl Common Keywords
-            // #pragma multi_compile _ _ALPHATEST_OFF
+            // #pragma enable_d3d11_debug_symbols
+            
             #pragma shader_feature_local _USE_DEBUG_FRAGMENT
 
             // -------------------------------------
-            // SnowyOwl Toon Material Keywords
+            // SnowyOwl Material Keywords
             #pragma shader_feature_local _SHADOWMAP_NONE _SHADOWMAP_SSS _SHADOWMAP_SSS_RAMP _SHADOWMAP_MULTICOLOR_RAMP
-            #pragma shader_feature_local _HIGHQUALITY_SELF_SHADOWS_ON
+            #pragma shader_feature_local _HQ_SELF_SHADOWS_ON
+            #pragma shader_feature_local _OUTLINE_INNER_ON
             #pragma shader_feature_local _MASKMAP_ON
             #pragma shader_feature_local _BRDFMAP_ON
             #pragma shader_feature_local _RIM_OFF _RIM_FRESNEL _RIM_DEPTHOFFSET
             #pragma shader_feature_local _MATCAP_OFF _MATCAP_ADD _MATCAP_MUL
-            #pragma shader_feature_local _OUTLINE_ON
-            #pragma shader_feature_local _OUTLINE_INNER_ON
 
             // -------------------------------------
             // Material Keywords
             #pragma shader_feature_local _NORMALMAP
-            #pragma shader_feature_local _EMISSION
             #pragma shader_feature_local _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local _ALPHATEST_ON
-            #pragma shader_feature_local _ALPHAPREMULTIPLY_ON
-            
-            //#pragma shader_feature_local _RECEIVE_SHADOWS_OFF
-            #if defined(_HIGHQUALITY_SELF_SHADOWS_ON)
-                #define _RECEIVE_SHADOWS_OFF
-            #endif
-            
+            #pragma shader_feature_local _RECEIVE_SHADOWS_OFF
             #pragma shader_feature_local _SPECULARHIGHLIGHTS_OFF
             #pragma shader_feature_local _ENVIRONMENTREFLECTIONS_OFF
 
@@ -175,31 +147,10 @@ Shader "SnowyOwl/Character/ToonLit"
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
-            #pragma vertex ToonLitPassVertex
-            #pragma fragment Frag
+            #pragma vertex ToonLitForwardVertex
+            #pragma fragment ToonLitForwardFragment
             
-            #include "../Include/Character/ToonLitForwardPass.hlsl"
-
-            half4 DebugFragment(Varyings input) : SV_Target
-            {
-            #if defined(_SHADOWMAP_SSS_RAMP)
-                return half4(1,0,0,1);
-            #elif defined(_SHADOWMAP_MULTICOLOR_RAMP)
-                return half4(0,1,0,1);
-            #else
-                return half4(0,0,0,1);
-            #endif
-            }
-
-            half4 Frag(Varyings input) : SV_Target
-            {
-            #if defined(_USE_DEBUG_FRAGMENT)
-                return DebugFragment(input);
-            #else
-                return ToonLitPassFragment(input);
-            #endif
-            }
-
+            #include "../Include/Character/ToonLitPass.hlsl"
             ENDHLSL
         }
 
@@ -208,22 +159,20 @@ Shader "SnowyOwl/Character/ToonLit"
             Name "Outline"
             Tags{"LightMode" = "Outline"}
 
+            Blend SrcAlpha OneMinusSrcAlpha
             Cull front
-            // ZTest Less
-            // ZWrite Off
 
             HLSLPROGRAM
 
-            #pragma shader_feature_local _OUTLINE_ON
-            #pragma shader_feature_local_fragment _ALPHATEST_ON
+            #pragma shader_feature_local _OUTLINE_SMOOTHEDNORMAL
+            #pragma shader_feature_local _ALPHATEST_ON
 
             #pragma multi_compile_fog
 
             #pragma vertex OutlinePassVertex
             #pragma fragment OutlinePassFragment
 
-            #include "../Include/Character/ToonLitInput.hlsl"
-            #include "../Include/Character/OutlinePass.hlsl"
+            #include "../Include/Character/ToonLitPass.hlsl"
 
             ENDHLSL
         }

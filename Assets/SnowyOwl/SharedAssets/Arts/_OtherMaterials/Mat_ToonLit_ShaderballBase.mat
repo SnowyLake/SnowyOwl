@@ -12,16 +12,8 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLE_CUSTOM_TEX_CHANNEL
-  - _HIGHQUALITY_SELF_SHADOWS_ON
-  - _ILM_EMISSION_CHANNEL_A
-  - _ILM_SHADOWTHRESHOLD_CHANNEL_B
-  - _ILM_SMOOTHNESS_CHANNEL_R
+  - _HQ_SELF_SHADOWS_ON
   - _MAIN_LIGHT_SHADOWS
-  - _MASK_BRDF_CHANNEL_R
-  - _MASK_MATCAP_CHANNEL_B
-  - _MASK_RIM_CHANNEL_G
-  - _MASK_UNUSED_CHANNEL_A
   - _MATCAP_OFF
   - _RIM_OFF
   - _SHADOWMAP_NONE
@@ -30,10 +22,20 @@ Material:
   - _
   - _ALPHACLIP_ON
   - _DSTBLEND_ON
+  - _ENABLE_CUSTOM_TEX_CHANNEL
   - _GLOSSYREFLECTIONS_OFF
+  - _HIGHQUALITY_SELF_SHADOWS_ON
+  - _ILM_EMISSION_CHANNEL_A
+  - _ILM_SHADOWTHRESHOLD_CHANNEL_B
+  - _ILM_SMOOTHNESS_CHANNEL_R
   - _ILM_SPACULARSCALE_CHANNEL_G
+  - _MASK_BRDF_CHANNEL_R
+  - _MASK_MATCAP_CHANNEL_B
+  - _MASK_RIM_CHANNEL_G
+  - _MASK_UNUSED_CHANNEL_A
   - _MATCAPX_OFF
   - _NONEMAP
+  - _OUTLINE_ON
   - _RAMPMAP
   - _RAMP_SSSMAP
   - _RIM1_OFF
@@ -211,6 +213,7 @@ Material:
     - _AlphaClip: 0
     - _BRDF: 0
     - _BRDFChannnel: 0
+    - _BRDFChannnelNOTE: 0
     - _BRDFDefaultChannnel: 0
     - _BRDFEmissionScale: 1
     - _BRDFEmissiveScale: 1
@@ -231,6 +234,10 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DiffuseOffsetOn: 0
+    - _DiffuseStepSmoothness: 0.2
+    - _DiffuseStepSmoothnessOffset: 0
+    - _DisableEnvironmentReflections: 0
     - _DisableReceiveShadows: 0
     - _DisableSpecularHighlights: 0
     - _DstBlend: 0
@@ -245,12 +252,16 @@ Material:
     - _EnableEmissive: 0
     - _EnableHQSelfShadows: 1
     - _EnableInnerOutLine: 0
-    - _EnableOutLine: 0
+    - _EnableNormalMap: 0
+    - _EnableOutLine: 1
+    - _EnableSmoothNormal: 0
+    - _EnableSpecularOffset: 0
     - _EnbaleCustomTextureChannel: 1
     - _EnvironmentReflections: 1
     - _GIAndEmissionSetting: 0
     - _GIAndEmissiveSetting: 0
     - _GIScale: 1
+    - _GISetting: 0
     - _General: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -262,6 +273,7 @@ Material:
     - _Group_Shadow: 0
     - _Group_ToonShading: 0
     - _Group_ToonSurface: 0
+    - _ILMChannnelNOTE: 0
     - _ILMCustomChannnel: 0
     - _ILMCustomChannnel1: 0
     - _ILMCustomChannnel2: 0
@@ -273,8 +285,10 @@ Material:
     - _ILM_SpacularScale: 1
     - _IsTransparent: 0
     - _Mask: 1
+    - _MaskChannnelNOTE: 0
     - _MaskCustomChannnel1: 0
     - _MaskCustomChannnel2: 0
+    - _MaskDefaultChannnel: 0
     - _MaskSetting: 0
     - _Mask_BRDF: 0
     - _Mask_MATCAP: 2
@@ -284,6 +298,7 @@ Material:
     - _MatcapMode: 0
     - _MatcapSetting: 0
     - _MatcapX: 0
+    - _MaterialCommonSetting: 0
     - _MaterialGeneralSetting: 0
     - _Metallic: 0
     - _MetallicScale: 0
@@ -294,7 +309,7 @@ Material:
     - _OcclusionStrength: 1
     - _Outline: 0
     - _OutlineSetting: 0
-    - _OutlineWidth: 0.04
+    - _OutlineWidth: 0.005
     - _Parallax: 0.005
     - _PreMaterialSetting: 0
     - _QueueOffset: 0
@@ -313,6 +328,7 @@ Material:
     - _RoughnessScale: 0.5
     - _SHADOW_TRANSITION_RAMPMAP: 0
     - _SSSRampMapGenerate: 0
+    - _ShadingStepOffset: 0.01
     - _Shadow: 0
     - _ShadowColor: 0
     - _ShadowColorMapType: 2
@@ -322,6 +338,7 @@ Material:
     - _ShadowSSSRampMapGenerate: 0
     - _ShadowSSSRampMapGenerator: 0
     - _ShadowSSSRampScale: 0
+    - _ShadowScale: 1
     - _ShadowThreshold: 0.5
     - _ShadowThresholdChannel: 0
     - _ShadowThresholdScale: 0.5
@@ -345,12 +362,14 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _StepOffset: 0.01
     - _Surface: 0
     - _TEST: 0
     - _TEST1: 0
     - _TEST2: 0
     - _TEXT3: 0
     - _ToonGIAndEmissiveSetting: 0
+    - _ToonShadingSetting: 0
     - _ToonShadowSetting: 0
     - _ToonSpecularSetting: 0
     - _ToonSurface: 0

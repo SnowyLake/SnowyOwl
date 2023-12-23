@@ -1,9 +1,23 @@
 #ifndef SNOWYOWL_TOON_LIGHTING_INCLUDED
 #define SNOWYOWL_TOON_LIGHTING_INCLUDED
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+#include "ToonLightingData.hlsl"
+#include "CommonLighting.hlsl"
 
-#include "ToonData.hlsl"
+// ---------------------
+LightAccumulator CreateLightAccumulator(InputData inputData, ToonLitSurfaceData toonSurfaceData)
+{
+    LightAccumulator lightAccumulator = (LightAccumulator)0;
+
+    lightAccumulator.mainLightColor = 0;
+    lightAccumulator.additionalLightsColor = 0;
+    lightAccumulator.vertexLightingColor = 0;
+
+    lightAccumulator.giColor = inputData.bakedGI * toonSurfaceData.giScale;
+    lightAccumulator.emissionColor = toonSurfaceData.emissionColor;
+
+    return lightAccumulator;
+}
 
 // TODO: SSS
 CustomLightData CreateCustomLightData(Light light, InputData inputData)
@@ -17,9 +31,9 @@ CustomLightData CreateCustomLightData(Light light, InputData inputData)
     lightData.distanceAttenuation = light.distanceAttenuation;
     lightData.shadowAttenuation = light.shadowAttenuation;
     lightData.NdotL = dot(inputData.normalWS, light.direction);
-    lightData.NdotV = saturate(dot(inputData.normalWS, inputData.viewDirectionWS));
-    lightData.NdotH = saturate(dot(inputData.normalWS, halfDir));
-    lightData.LdotH = saturate(dot(light.direction, halfDir));
+    lightData.NdotV = dot(inputData.normalWS, inputData.viewDirectionWS);
+    lightData.NdotH = dot(inputData.normalWS, halfDir);
+    lightData.LdotH = dot(light.direction, halfDir);
 
     return lightData;
 }
@@ -27,111 +41,62 @@ CustomLightData CreateCustomLightData(Light light, InputData inputData)
 ///////////////////////////////////////////////////////////////////////////////
 //                      Lighting Functions                                   //
 ///////////////////////////////////////////////////////////////////////////////
-half3 ToonLightingDiffuse(CustomLightData lightData, half3 brightColor, half3 darkenColor, float diffuseRadiance)
+half ToonLightingDiffuse(CustomLightData lightData, InputData inputData, ToonLitSurfaceData toonSurfaceData)
 {
-    return lerp(darkenColor, brightColor, diffuseRadiance);
+    half diffuseStepOffset = saturate(toonSurfaceData.shadowThreshold * 2 - 1);
+    half diffuseStepSmoothnessBias = toonSurfaceData.diffuseStepSmoothness * rcp(2) * (1 - toonSurfaceData.diffuseStepSmoothnessOffset);
+    half diffuseRadiance = saturate(lightData.NdotL + diffuseStepOffset + diffuseStepSmoothnessBias + 0.01);
+    diffuseRadiance = smoothstep(saturate(0.01 - toonSurfaceData.diffuseStepSmoothness),
+                                 saturate(0.01 + toonSurfaceData.diffuseStepSmoothness),
+                                 diffuseRadiance);
+    return diffuseRadiance;
 }
 
-half3 ToonLightingSpecular(CustomLightData lightData, ToonSurfaceData toonSurfaceData, half3 brightColor, float diffuseRadiance)
+half3 ToonLightingSpecular(CustomLightData lightData, ToonLitSurfaceData toonSurfaceData, half3 brightColor, float diffuseRadiance)
 {
 #if defined(_SPECULARHIGHLIGHTS_OFF)
     return half3(0, 0, 0);
 #endif
-    half3 specularColor = lerp(brightColor, toonSurfaceData.customSpecularColor, toonSurfaceData.customSpecularColorWeight);
+    half3 specularColor = brightColor * toonSurfaceData.specularColor;
     specularColor *= step(0.2f, toonSurfaceData.specularScale * pow(lightData.NdotH, toonSurfaceData.smoothness));
     return lerp(half3(0, 0, 0), specularColor, diffuseRadiance);
 }
 
-half3 ToonDirectLighting(Light light, InputData inputData, ToonSurfaceData toonSurfaceData, half isMainLight = 0)
+half3 ToonDirectLighting(Light light, InputData inputData, ToonLitSurfaceData toonSurfaceData, half isMainLight = 0)
 {
+    half3 toonDirectLighting = 0;
+    
     CustomLightData lightData = CreateCustomLightData(light, inputData);
 
     half3 brightColor = lightData.lightColor * toonSurfaceData.albedo;
-	half3 darkenColor = lightData.lightColor * toonSurfaceData.albedo * toonSurfaceData.shadowColor;
+    half3 darkenColor = lightData.lightColor * toonSurfaceData.albedo * toonSurfaceData.shadowColor;
 
-    half halfLambert = lightData.NdotL * 0.5 + 0.5;
-    float diffuseRadiance = halfLambert * lightData.shadowAttenuation * (toonSurfaceData.shadowThreshold * 2);
-    diffuseRadiance = saturate(1 + (diffuseRadiance - 0.5 - 0) / max(0, 1e-5));
-
-    half3 toonDirectLighting = 0;
-    toonDirectLighting += ToonLightingDiffuse(lightData, brightColor, darkenColor, diffuseRadiance);
-    toonDirectLighting += ToonLightingSpecular(lightData, toonSurfaceData, brightColor, diffuseRadiance);
+    half diffuseRadiance = ToonLightingDiffuse(lightData, inputData, toonSurfaceData);
+    
+    toonDirectLighting += lerp(darkenColor, brightColor, diffuseRadiance);
+    // toonDirectLighting += ToonLightingSpecular(lightData, toonSurfaceData, brightColor, diffuseRadiance);
 
     toonDirectLighting = lerp(half3(0, 0, 0), toonDirectLighting, lightData.distanceAttenuation);
 
     return toonDirectLighting;
 }
 
-
-
-// ---------------------
-LightAccumulator CreateLightAccumulator(InputData inputData, ToonSurfaceData toonSurfaceData)
-{
-    LightAccumulator lightAccumulator;
-
-    lightAccumulator.mainLightColor = 0;
-    lightAccumulator.additionalLightsColor = 0;
-    lightAccumulator.vertexLightingColor = 0;
-
-    lightAccumulator.giColor = inputData.bakedGI * toonSurfaceData.giScale;
-    lightAccumulator.emissionColor = toonSurfaceData.emissionColor;
-
-    return lightAccumulator;
-}
-
-half3 AccumulateLighting(LightAccumulator lightAccumulator, half3 albedo)
-{
-    half3 lightingAccumulation = 0;
-    if (IsOnlyAOLightingFeatureEnabled())
-    {
-        return lightAccumulator.giColor; // Contains white + AO
-    }
-
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_GLOBAL_ILLUMINATION))
-    {
-        lightingAccumulation += lightAccumulator.giColor * albedo;
-    }
-
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_MAIN_LIGHT))
-    {
-        lightingAccumulation += lightAccumulator.mainLightColor;
-    }
-
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_ADDITIONAL_LIGHTS))
-    {
-        lightingAccumulation += lightAccumulator.additionalLightsColor;
-    }
-
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_VERTEX_LIGHTING))
-    {
-        lightingAccumulation += lightAccumulator.vertexLightingColor;
-    }
-
-    if (IsLightingFeatureEnabled(DEBUGLIGHTINGFEATUREFLAGS_EMISSION))
-    {
-        lightingAccumulation += lightAccumulator.emissionColor;
-    }
-
-    return lightingAccumulation;
-}
-
-half4 FinalColorOutput(LightAccumulator lightAccumulator, half3 albedo, half alpha)
-{
-    half3 finalColor = AccumulateLighting(lightAccumulator, albedo);
-    return half4(finalColor, alpha);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 /// SnowyOwl ToonShading
 ////////////////////////////////////////////////////////////////////////////////
-half4 SnowyOwl_ToonShading(InputData inputData, ToonSurfaceData toonSurfaceData)
-{   
+half4 SnowyOwlFragmentToonLighting(InputData inputData, ToonLitSurfaceData toonSurfaceData)
+{
+    half4 shadowMask = CalculateShadowMask(inputData);
+    AmbientOcclusionFactor aoFactor = (AmbientOcclusionFactor)0;
     uint meshRenderingLayers = GetMeshRenderingLayer();
     Light mainLight = GetMainLight(inputData.shadowCoord);
 
     LightAccumulator lightAccumulator = CreateLightAccumulator(inputData, toonSurfaceData);
+    lightAccumulator.giColor *= toonSurfaceData.albedo;
 
+#if defined(_LIGHT_LAYERS)
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
+#endif
     {
         lightAccumulator.mainLightColor += ToonDirectLighting(mainLight, inputData, toonSurfaceData, 1);
     }
@@ -139,28 +104,39 @@ half4 SnowyOwl_ToonShading(InputData inputData, ToonSurfaceData toonSurfaceData)
 #if defined(_ADDITIONAL_LIGHTS)
     uint pixelLightCount = GetAdditionalLightsCount();
 
-    #if USE_CLUSTERED_LIGHTING
-    for (uint lightIndex = 0; lightIndex < min(_AdditionalLightsDirectionalCount, MAX_VISIBLE_LIGHTS); lightIndex++)
-    {
-        Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
-
-        if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+    #if USE_FORWARD_PLUS
+        for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
         {
-            lightAccumulator.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
+            FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+
+            Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+        #if defined(_LIGHT_LAYERS)
+            if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+        #endif
+            {
+                lightAccumulator.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
+            }
         }
-    }
     #endif
 
     LIGHT_LOOP_BEGIN(pixelLightCount)
-        Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
+        Light light = GetAdditionalLight(lightIndex, inputData, shadowMask, aoFactor);
+
+    #if defined(_LIGHT_LAYERS)
         if (IsMatchingLightLayer(light.layerMask, meshRenderingLayers))
+    #endif
         {
             lightAccumulator.additionalLightsColor += ToonDirectLighting(light, inputData, toonSurfaceData, 0);
         }
     LIGHT_LOOP_END
 #endif
 
-    return FinalColorOutput(lightAccumulator, toonSurfaceData.albedo, toonSurfaceData.alpha);
+// #if defined(_ADDITIONAL_LIGHTS_VERTEX)
+//     lightAccumulator.vertexLightingColor += inputData.vertexLighting * brdfData.diffuse;
+// #endif
+
+    return FinalColorOutput(lightAccumulator, toonSurfaceData.alpha);
 }
 
 #endif // SNOWYOWL_TOON_LIGHTING_INCLUDE

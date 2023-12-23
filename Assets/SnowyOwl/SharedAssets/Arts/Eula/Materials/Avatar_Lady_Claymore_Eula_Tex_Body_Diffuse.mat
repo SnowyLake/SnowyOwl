@@ -25,23 +25,25 @@ Material:
   m_Parent: {fileID: 2100000, guid: 2be9747c800a6c74eb95e6aa9d4840d2, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _HQ_SELF_SHADOWS_ON
+  - _MATCAP_OFF
+  - _RECEIVE_SHADOWS_OFF
+  - _RIM_OFF
+  - _SHADOWMAP_NONE
+  m_InvalidKeywords:
+  - _
   - _ENABLE_CUSTOM_TEX_CHANNEL
   - _HIGHQUALITY_SELF_SHADOWS_ON
   - _ILM_EMISSION_CHANNEL_A
   - _ILM_SHADOWTHRESHOLD_CHANNEL_G
   - _ILM_SMOOTHNESS_CHANNEL_R
+  - _ILM_SPACULARSCALE_CHANNEL_B
   - _MASK_BRDF_CHANNEL_R
   - _MASK_MATCAP_CHANNEL_B
   - _MASK_RIM_CHANNEL_G
   - _MASK_UNUSED_CHANNEL_A
-  - _MATCAP_OFF
-  - _OUTLINE_ON
-  - _RIM_OFF
-  - _SHADOWMAP_NONE
-  m_InvalidKeywords:
-  - _
-  - _ILM_SPACULARSCALE_CHANNEL_B
   - _MATCAPX_OFF
+  - _OUTLINE_ON
   - _RIM1_OFF
   - _RIM2_OFF
   - _RIM3_OFF
@@ -73,13 +75,16 @@ Material:
     m_Ints: []
     m_Floats:
     - _CustomSpecularColorWeight: 0
+    - _DiffuseStepSmoothness: 0.294
+    - _DiffuseStepSmoothnessOffset: 0
     - _DisableReceiveShadows: 1
     - _EnableOutLine: 1
+    - _GIScale: 0.1
     - _Glossiness: 0.34641016
     - _ILM_ShadowThreshold: 1
     - _ILM_SpacularScale: 2
     - _Outline: 1
-    - _OutlineWidth: 0.089
+    - _OutlineWidth: 0.005
     - _ShadowThreshold: 1
     - _Smoothness: 8
     - _SpacularScale: 1

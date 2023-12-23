@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   k_AssetVersion: 3
   m_RenderingLayerNames:
-  - 'Layer0_Default '
-  - Layer1_SceneA
-  - Layer2_SceneB
-  - Layer3_SceneC
-  - Layer4_ToonShading
-  - Layer5_Unused
-  - Layer6_Unused
-  - Layer7_Unused
-  - Layer8_Outline
+  - DefaultLayer
+  - SceneA
+  - SceneB
+  - SceneC
+  - Character
+  - Unused
+  - Unused
+  - Unused
+  - ToonOutline
   m_ValidRenderingLayers: 511
   lightLayerName0: Light Layer default
   lightLayerName1: Light Layer 1

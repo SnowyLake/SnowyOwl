@@ -18,23 +18,6 @@ MonoBehaviour:
   requirements: 4
   passIndex: 0
   cameraTypes: 00000000
---- !u!114 &-4114157645508556651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
-  m_Name: FullScreenPassRendererFeature
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  passMaterial: {fileID: 2100000, guid: 78a08787ca30045abb69f6f7dd878e09, type: 2}
-  injectionPoint: 600
-  requirements: 4
-  passIndex: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,9 +35,9 @@ MonoBehaviour:
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
   - {fileID: 2000611747315773186}
-  - {fileID: -4114157645508556651}
   - {fileID: -5159040669712840847}
-  m_RendererFeatureMap: 02ef3ad4c899c31b9548814d6b93e7c67107f93bd86767b8
+  - {fileID: 4721169980014584511}
+  m_RendererFeatureMap: 02ef3ad4c899c31b7107f93bd86767b8bfe2013f15f78441
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -76,10 +59,10 @@ MonoBehaviour:
   m_AssetVersion: 2
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 4294967295
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 59
+    m_Bits: 4294967295
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 0
@@ -105,12 +88,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c831ce768515c1a46933eab11c8af079, type: 3}
   m_Name: OutlineRendererFeature
   m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    filterSettings:
+      layerMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      renderingLayerMask:
+        value: 256
+      cameraTypes: 00000000
+    enableWriteDepth: 1
+--- !u!114 &4721169980014584511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c831ce768515c1a46933eab11c8af079, type: 3}
+  m_Name: ToonOutlineRendererFeature
+  m_EditorClassIdentifier: 
   m_Active: 1
   settings:
     filterSettings:
       layerMask:
         serializedVersion: 2
-        m_Bits: 8
+        m_Bits: 4294967295
       renderingLayerMask:
-        value: 256
+        value: 16
+      cameraTypes: 00000000
     enableWriteDepth: 1
